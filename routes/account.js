@@ -21,20 +21,30 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("ACCOUNT");
+	let scoresCollection = await informationDB.getCollection("SCORES");
 	collection.findOne({ id: params.id }, function (err, data) {
-		if (!data) {
-			res.status(400).json({ "code": "-1" })
-		} else {
-			res.status(200).json({
-				_id: data._id,
-				id: data.id,
-				name: data.name,
-				access: data.access,
-				// wxInfo: data.wxInfo,
-				tel: data.tel,
-				college: data.college
+		if (data) {
+			scoresCollection.findOne({ id: params.id }, function (err, scoresData) {
+				if (!scoresData) {
+					res.status(400).json({ "code": "-1" })
+				} else {
+					res.status(200).json({
+						_id: data._id,
+						id: data.id,
+						name: data.name,
+						access: data.access,
+						// wxInfo: data.wxInfo,
+						tel: data.tel,
+						college: data.college,
+						scores: scoresData.scores
+					});
+				}
 			});
 		}
+		else {
+			res.status(400).json({ "code": "-1" })
+		}
+
 	});
 });
 
