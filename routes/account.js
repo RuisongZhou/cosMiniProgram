@@ -33,7 +33,7 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 						id: data.id,
 						name: data.name,
 						access: data.access,
-						// wxInfo: data.wxInfo,
+						headImage: data.headImage,
 						tel: data.tel,
 						college: data.college,
 						scores: scoresData.scores
@@ -69,7 +69,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 	let UsearData = {
 		id: req.body.id,
 		name: req.body.name,
-		// wxInfo: req.body.wxInfo,
+		headImage: req.body.headImage,
 		tel: req.body.tel,
 		college: req.body.college
 	}
@@ -83,7 +83,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 			accountCollection.insertOne({
 				id: UsearData.id,
 				name: UsearData.name,
-				// wxInfo: UsearData.wxInfo,
+				headImage: UsearData.headImage,
 				tel: UsearData.tel,
 				college: UsearData.college
 			}, function () {
@@ -195,7 +195,7 @@ router.post('/account/scores', urlencodedParser, async function (req, res, next)
 				res.status(200).json({ "code": "-2" })
 			}
 			else {
-				senderScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getNowFormatDate()});
+				senderScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": new Date()});
 				let m_score = parseInt(senderScores.scores) - parseInt(aDeal.score);
 				// console.log(m_score);
 				if (m_score < 0) {
@@ -226,7 +226,7 @@ router.post('/account/scores', urlencodedParser, async function (req, res, next)
 								deals: data.deals
 							}
 				
-							toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getNowFormatDate()});
+							toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": new Date()});
 							toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
 				
 							collection.save({
@@ -245,21 +245,4 @@ router.post('/account/scores', urlencodedParser, async function (req, res, next)
 	});
 
 });
-
-function getNowFormatDate() {
-	var date = new Date();
-	var seperator1 = "-";
-	var year = date.getFullYear();
-	var month = date.getMonth() + 1;
-	var strDate = date.getDate();
-	if (month >= 1 && month <= 9) {
-		month = "0" + month;
-	}
-	if (strDate >= 0 && strDate <= 9) {
-		strDate = "0" + strDate;
-	}
-	var currentdate = year + seperator1 + month + seperator1 + strDate;
-	return currentdate;
-}
-
 module.exports = router;

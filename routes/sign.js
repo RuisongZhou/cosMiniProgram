@@ -27,7 +27,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
         let scoreCollection = await informationDB.getCollection("SCORES");
         signCollection.findOne({ id: SIGN.id }, function (err, data) {
             let serialSignNumber = parseInt(data.serialSignNumber);
-            let nowDate = getNowFormatDate();
+            let nowDate = new Date();
             console.log(nowDate, data.lastSignTime,(nowDate != data.lastSignTime));
             if (nowDate != data.lastSignTime) {
                 if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　<= 1) {
@@ -69,31 +69,8 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
 
 });
 
-function getNowFormatDate() {
-	var date = new Date();
-	var seperator1 = "-";
-	var year = date.getFullYear();
-	var month = date.getMonth() + 1;
-	var strDate = date.getDate();
-	if (month >= 1 && month <= 9) {
-		month = "0" + month;
-	}
-	if (strDate >= 0 && strDate <= 9) {
-		strDate = "0" + strDate;
-	}
-	var currentdate = year + seperator1 + month + seperator1 + strDate;
-	return currentdate;
-}
 
 function getDays(strDateStart,strDateEnd){
-    var strSeparator = "-"; //日期分隔符
-    var oDate1;
-    var oDate2;
-    var iDays;
-    oDate1= strDateStart.split(strSeparator);
-    oDate2= strDateEnd.split(strSeparator);
-    var strDateS = new Date(oDate1[0], oDate1[1]-1, oDate1[2]);
-    var strDateE = new Date(oDate2[0], oDate2[1]-1, oDate2[2]);
     iDays = parseInt(Math.abs(strDateS - strDateE ) / 1000 / 60 / 60 /24)//把相差的毫秒数转换为天数 
     return iDays ;
 }

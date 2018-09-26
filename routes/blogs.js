@@ -23,7 +23,7 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 	if (params.describe == 'getPostBlogs') {
 		let page = parseInt(params.page);
 		collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
-            // console.log(data);
+            console.log(data);
 			res.status(200).json({
 				"PostBlogs": data
 			});
@@ -76,15 +76,24 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 	}
 
 	let collection = await informationDB.getCollection("POSTBLOGS");
-	collection.insertOne({
-		theme: postBlog.theme,
-		contant: postBlog.contant,
-		poster: postBlog.poster,
-		time: getNowFormatDate(),
-		replyBlogsId: [],
-		like: []
+	let accountCollection = await informationDB.getCollection("ACCOUNT");
+
+	//初始化账户表
+	accountCollection.findOne({ id: postBlog.poster }, function (err, data) {
+		collection.insertOne({
+			theme: postBlog.theme,
+			contant: postBlog.contant,
+			poster: {
+				id: postBlog.poster,
+				headImage: data.headImage,
+				name: data.name,
+			},
+			time: new Date(),
+			replyBlogsId: [],
+			like: []
+		});
+		res.status(200).json({ "code": "1" });
 	});
-	res.status(200).json({ "code": "1" });
 });
 
 //回帖
@@ -98,12 +107,20 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 
 	//添加回帖
 	let replyCollection = await informationDB.getCollection("REPLYBLOGS");
-	replyCollection.insertOne({
-		themeId: replyBlog.themeId,
-		contant: replyBlog.contant,
-		poster: replyBlog.poster,
-		time: getNowFormatDate(),
-		like: []
+	let accountCollection = await informationDB.getCollection("ACCOUNT");
+
+	accountCollection.findOne({ id: postBlog.poster }, function (err, data) {
+		replyCollection.insertOne({
+			themeId: replyBlog.themeId,
+			contant: replyBlog.contant,
+			poster: {
+				id: postBlog.poster,
+				headImage: data.headImage,
+				name: data.name,
+			},
+			time: new Date(),
+			like: []
+		});
 	});
 	
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
@@ -212,22 +229,6 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 
 });
 
-
-function getNowFormatDate() {
-	var date = new Date();
-	var seperator1 = "-";
-	var year = date.getFullYear();
-	var month = date.getMonth() + 1;
-	var strDate = date.getDate();
-	if (month >= 1 && month <= 9) {
-		month = "0" + month;
-	}
-	if (strDate >= 0 && strDate <= 9) {
-		strDate = "0" + strDate;
-	}
-	var currentdate = year + seperator1 + month + seperator1 + strDate;
-	return currentdate;
-}
 
 Array.prototype.indexOf = function(val) {
     for (var i = 0; i < this.length; i++) {
