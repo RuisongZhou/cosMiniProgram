@@ -78,27 +78,31 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("REPLYBLOGS");
+	let postCollection = await informationDB.getCollection("POSTBLOGS");
+
 	if (params.describe == 'getReplyBlogs') {
 		let page = parseInt(params.page);
 		if (page === 0) {
-			collection.find({themeId: params.themeId}).sort(['_id', 1]).limit(3).toArray(function (err, data) {
-				res.status(200).json({
-					"replyBlogs": data
+			collection.find({themeId: params.themeId}).sort(['_id', 1]).limit(3).toArray(function (err, replydata) {
+				postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
+					res.status(200).json({
+						"postBlogs": postdata,
+						"replyBlogs": replydata
+					});
 				});
 			});
 			
 		}
 		else {
-			collection.find({themeId: params.themeId}).sort(['_id', 1]).skip(page*10-7).limit(10).toArray(function (err, data) {
-				res.status(200).json({
-					"replyBlogs": data
+			collection.find({themeId: params.themeId}).sort(['_id', 1]).skip(page*10-7).limit(10).toArray(function (err, replydata) {
+				postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
+					res.status(200).json({
+						"postBlogs": postdata,
+						"replyBlogs": replydata
+					});
 				});
 			});
 		}
-		console.log(replyBlogs);
-		res.status(200).json({
-			"replyBlogs": replyBlogs
-		});
 	}
 	else {
 		res.status(400).json({ "code": "-1" });
@@ -277,7 +281,7 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					likeIds.push(likeBlog.id);
 					likePicture.push(likeBlog.headImage);
 				}
-				likenumber = likeIds.length();
+				likenumber = likeIds.length;
 
 				postCollection.save({
 					_id: ObjectID(data._id),
@@ -314,7 +318,7 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					likeIds.push(likeBlog.id);
 					likePicture.push(likeBlog.headImage);
 				}
-				likenumber = likeIds.length();
+				likenumber = likeIds.length;
 				replyCollection.save({
 					_id: ObjectID(data._id),
 					themeId: data.themeId,
