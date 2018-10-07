@@ -21,7 +21,7 @@ router.get('/shop', urlencodedParser, async function (req, res, next) {
     console.log(params);
     let collection = await informationDB.getCollection("SHOP");
 	if (params.describe == 'getGoods') {
-        collection.find().toArray(function (err, data) {
+        collection.find().sort(['_id', 1]).skip(params.page*10).limit(10).toArray(function (err, data) {
             // console.log(data);
 			res.status(200).json({
 				"goods": data
@@ -41,7 +41,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
         name: req.body.name,
         content: req.body.content,
         poster: req.body.poster,
-        price: req.body.price
+        price: req.body.price,
+        number: req.body.number
     }
 
     console.log(good);
@@ -53,6 +54,7 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
             content: good.content,
             poster: good.poster,
             price: good.price,
+            number: good.number
         }, function () {
             res.status(200).json({ "code": "1" });
         })
@@ -101,7 +103,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         name: req.body.name,
         content: req.body.content,
         poster: req.body.poster,
-        price: req.body.price
+        price: req.body.price,
+        number: req.body.number
     }
 
     if (good.describe == 'ChangeGood') {
@@ -119,7 +122,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
                         name: good.name,
                         content: good.content,
                         poster: good.poster,
-                        price: good.price
+                        price: good.price,
+                        number: req.body.number
                     },function () {
                         res.status(200).json({ "code": "1" })
                     });
@@ -130,6 +134,61 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
     else {
         res.status(400).json({ "code": "-1" });
     }
+});
+
+// 购买商品
+router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
+    let confirm = {
+		id: req.body.id,
+        modelId: req.body.modelId,
+        buyNumber: req.body.buyNumber,
+        price: req.body.price,
+        reMarks: req.body.reMarks
+    }
+
+    console.log(confirm);
+
+
+    var orderNumber="";  //订单号
+    for(var i=0;i<6;i++) //6位随机数，用以加在时间戳后面。
+    {
+        orderNumber += Math.floor(Math.random()*10);
+    }
+    orderNumber = new Date().getTime() + orderNumber;  //时间戳，用来生成订单号。
+
+    let shopCollection = await informationDB.getCollection("SHOP");
+    let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
+
+    shopCollection.findOne({ _id: ObjectID(confirm.modelId) }, function (err, data) {
+		if (!data) {
+			res.status(400).json({ "code": "-1" })
+		} else {
+            confirmCollection.insertOne({
+                orderNumber: orderNumber,
+                buyer: confirm.buyer,
+                modelId: confirm.modelId,
+                modelName: data.name,
+                buyNumber: confirm.buyNumber,
+                price: confirm.price,
+                reMarks: confirm.reMarks,
+                orderTime: new Date(),
+                status: "0"
+            }, function () {
+                shopCollection.save({
+                    _id: ObjectID(data.goodId),
+                    name: data.name,
+                    content: data.content,
+                    poster: data.poster,
+                    price: data.price,
+                    number: String(parseInt(data.body.number)-parseInt(buyNumber))
+                },function () {
+                    res.status(200).json({ "code": "1" })
+                });
+            })
+		}
+	});
+
+
 });
 
 module.exports = router;

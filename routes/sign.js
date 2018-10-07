@@ -21,7 +21,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
 		describe: req.body.describe
     }
     console.log(SIGN);
-    //讲数据插入签到表
+    //将数据插入签到表
     if (SIGN.describe === "sign") {
         let signCollection = await informationDB.getCollection("SIGN");
         let scoreCollection = await informationDB.getCollection("SCORES");

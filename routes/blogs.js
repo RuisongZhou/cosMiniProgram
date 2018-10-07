@@ -22,7 +22,7 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("POSTBLOGS");
 	if (params.describe == 'getPostBlogs') {
 		let page = parseInt(params.page);
-		collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+		collection.find({boald: params.boald}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"PostBlogs": data
@@ -33,6 +33,27 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 		res.status(400).json({ "code": "-1" });
 	}
 });
+
+
+// 获取板块信息
+router.get('/boalds', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("BOALDS");
+	if (params.describe == 'getBoalds') {
+		let page = parseInt(params.page);
+		collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+            console.log(data);
+			res.status(200).json({
+				"Boalds": data
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
 
 // 获取回帖
 router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
@@ -66,13 +87,38 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 	}
 });
 
+//新建板块
+router.post('/newBoald', urlencodedParser, async function (req, res, next) {
+	// 获取req.body传来的信息，暂存在postBlog中
+	let boald = {
+		name: req.body.name,
+		description: req.body.description,
+		picture: req.body.picture
+	}
+
+	console.log(boald);
+
+	let collection = await informationDB.getCollection("BOALDS");
+
+	collection.insertOne({
+		name: boald.name,
+		description: boald.description,
+		time: new Date(),
+		picture: boald.picture
+	});
+	res.status(200).json({ "code": "1" });
+
+});
+
 //发帖
 router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 	// 获取req.body传来的信息，暂存在postBlog中
 	let postBlog = {
 		theme: req.body.theme,
 		contant: req.body.contant,
-		poster: req.body.poster
+		poster: req.body.poster,
+		boald: req.body.boald,
+		picture: req.body.picture
 	}
 
 	let collection = await informationDB.getCollection("POSTBLOGS");
@@ -90,7 +136,9 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 			},
 			time: new Date(),
 			replyBlogsId: [],
-			like: []
+			like: [],
+			boald: postBlog.boald,
+			picture: postBlog.picture
 		});
 		res.status(200).json({ "code": "1" });
 	});
