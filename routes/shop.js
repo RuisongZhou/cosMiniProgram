@@ -171,7 +171,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                 buyNumber: confirm.buyNumber,
                 price: confirm.price,
                 reMarks: confirm.reMarks,
-                orderTime: new Date(),
+                orderTime: getDate(),
                 status: "0"
             }, function () {
                 shopCollection.save({
@@ -190,5 +190,19 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 
 
 });
+
+function getDate(){
+	nowDate = new Date();
+	nowDateArray = {
+		year: nowDate.getFullYear(),
+		mouth: nowDate.getMonth()+1,
+		day: nowDate.getDate(),
+		hour: nowDate.getHours(),
+		minutes: nowDate.getMinutes(),
+		second: nowDate.getSeconds()
+	}
+
+    return nowDateArray ;
+}
 
 module.exports = router;

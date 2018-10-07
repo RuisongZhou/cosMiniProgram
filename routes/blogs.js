@@ -22,7 +22,7 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("POSTBLOGS");
 	if (params.describe == 'getPostBlogs') {
 		let page = parseInt(params.page);
-		collection.find({boald: params.boald}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+		collection.find({board: params.board}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"PostBlogs": data
@@ -36,16 +36,34 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 
 
 // 获取板块信息
-router.get('/boalds', urlencodedParser, async function (req, res, next) {
+router.get('/boards', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("BOALDS");
-	if (params.describe == 'getBoalds') {
+	let collection = await informationDB.getCollection("BOARDS");
+	if (params.describe == 'getBoards') {
 		let page = parseInt(params.page);
 		collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
-				"Boalds": data
+				"Boards": data
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
+// 获取所有板块信息
+router.get('/allBoards', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("BOARDS");
+	if (params.describe == 'getBoards') {
+		collection.find().toArray(function (err, data) {
+            console.log(data);
+			res.status(200).json({
+				"Boards": data
 			});
         });
 	}
@@ -88,27 +106,47 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 });
 
 //新建板块
-router.post('/newBoald', urlencodedParser, async function (req, res, next) {
+router.post('/newBoard', urlencodedParser, async function (req, res, next) {
 	// 获取req.body传来的信息，暂存在postBlog中
-	let boald = {
+	let board = {
 		name: req.body.name,
 		description: req.body.description,
 		picture: req.body.picture
 	}
 
-	console.log(boald);
+	console.log(board);
 
-	let collection = await informationDB.getCollection("BOALDS");
+	let collection = await informationDB.getCollection("BOARDS");
 
 	collection.insertOne({
-		name: boald.name,
-		description: boald.description,
-		time: new Date(),
-		picture: boald.picture
+		name: board.name,
+		description: board.description,
+		time: getDate(),
+		picture: board.picture
 	});
 	res.status(200).json({ "code": "1" });
 
 });
+
+// 删除板块
+router.post('/board/remove', urlencodedParser, async function (req, res, next) {
+    let Id  =  req.body._id;
+
+    console.log(Id);
+
+    let collection = await informationDB.getCollection("BOARDS");
+    collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
+        if (!data) {
+            res.status(400).json({ "msg": "not found" })
+        } else {
+            collection.remove({_id: ObjectID(Id)},function () {
+                res.status(200).json({ "msg": "delete success" });
+                });
+        }
+    });
+
+});
+
 
 //发帖
 router.post('/postblogs', urlencodedParser, async function (req, res, next) {
@@ -117,7 +155,7 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 		theme: req.body.theme,
 		contant: req.body.contant,
 		poster: req.body.poster,
-		boald: req.body.boald,
+		board: req.body.board,
 		picture: req.body.picture
 	}
 
@@ -134,10 +172,10 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 				headImage: data.headImage,
 				name: data.name,
 			},
-			time: new Date(),
+			time: getDate(),
 			replyBlogsId: [],
 			like: [],
-			boald: postBlog.boald,
+			board: postBlog.board,
 			picture: postBlog.picture
 		});
 		res.status(200).json({ "code": "1" });
@@ -166,7 +204,7 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 				headImage: data.headImage,
 				name: data.name,
 			},
-			time: new Date(),
+			time: getDate(),
 			like: []
 		});
 	});
@@ -291,5 +329,19 @@ Array.prototype.remove = function(val) {
         this.splice(index, 1);
     }
 };
+
+function getDate(){
+	nowDate = new Date();
+	nowDateArray = {
+		year: nowDate.getFullYear(),
+		mouth: nowDate.getMonth()+1,
+		day: nowDate.getDate(),
+		hour: nowDate.getHours(),
+		minutes: nowDate.getMinutes(),
+		second: nowDate.getSeconds()
+	}
+
+    return nowDateArray ;
+}
 
 module.exports = router;

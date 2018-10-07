@@ -75,4 +75,19 @@ function getDays(strDateStart,strDateEnd){
     return iDays ;
 }
 
+function getDate(){
+	nowDate = new Date();
+	nowDateArray = {
+		year: nowDate.getFullYear(),
+		mouth: nowDate.getMonth()+1,
+		day: nowDate.getDate(),
+		hour: nowDate.getHours(),
+		minutes: nowDate.getMinutes(),
+		second: nowDate.getSeconds()
+	}
+
+    return nowDateArray ;
+}
+
+
 module.exports = router;

@@ -74,7 +74,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
 				res.status(200).json({ "code": "-2" })
 			}
 			else {
-                senderScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": new Date()});
+                senderScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
 
                 if (aDeal.senderPermission == "3") {
                     adminCollection.save({
@@ -114,7 +114,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                     deals: data.deals
                                 }
                     
-                                toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": new Date()});
+                                toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
                                 toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                     
                                 adminCollection.save({
@@ -141,7 +141,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 deals: data.deals
                             }
                 
-                            toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": new Date()});
+                            toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
                             collection.save({
@@ -369,5 +369,20 @@ router.post('/model/confirm', urlencodedParser, async function (req, res, next) 
         }
     });
 });
+
+
+function getDate(){
+	nowDate = new Date();
+	nowDateArray = {
+		year: nowDate.getFullYear(),
+		mouth: nowDate.getMonth()+1,
+		day: nowDate.getDate(),
+		hour: nowDate.getHours(),
+		minutes: nowDate.getMinutes(),
+		second: nowDate.getSeconds()
+	}
+
+    return nowDateArray ;
+}
 
 module.exports = router;
