@@ -86,7 +86,7 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 			collection.find({themeId: params.themeId}).sort(['_id', 1]).limit(3).toArray(function (err, replydata) {
 				postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
 					res.status(200).json({
-						"postBlogs": postdata,
+						"postBlogs": postdata[0],
 						"replyBlogs": replydata
 					});
 				});
