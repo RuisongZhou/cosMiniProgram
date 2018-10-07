@@ -153,7 +153,7 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 	// 获取req.body传来的信息，暂存在postBlog中
 	let postBlog = {
 		theme: req.body.theme,
-		contant: req.body.contant,
+		content: req.body.content,
 		poster: req.body.poster,
 		board: req.body.board,
 		picture: req.body.picture
@@ -166,7 +166,7 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 	accountCollection.findOne({ id: postBlog.poster }, function (err, data) {
 		collection.insertOne({
 			theme: postBlog.theme,
-			contant: postBlog.contant,
+			content: postBlog.content,
 			poster: {
 				id: postBlog.poster,
 				headImage: data.headImage,
@@ -174,7 +174,9 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 			},
 			time: getDate(),
 			replyBlogsId: [],
-			like: [],
+			likeIds: [],
+			likePicture: [],
+			likenumber: 0,
 			board: postBlog.board,
 			picture: postBlog.picture
 		});
@@ -187,7 +189,7 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 	// 获取req.body传来的信息，暂存在replyBlog中
 	let replyBlog = {
 		themeId: req.body.themeId,
-		contant: req.body.contant,
+		content: req.body.content,
 		poster: req.body.poster
 	}
 
@@ -195,25 +197,27 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 	let replyCollection = await informationDB.getCollection("REPLYBLOGS");
 	let accountCollection = await informationDB.getCollection("ACCOUNT");
 
-	accountCollection.findOne({ id: postBlog.poster }, function (err, data) {
+	accountCollection.findOne({ id: replyBlog.poster }, function (err, data) {
 		replyCollection.insertOne({
 			themeId: replyBlog.themeId,
-			contant: replyBlog.contant,
+			content: replyBlog.content,
 			poster: {
-				id: postBlog.poster,
+				id: replyBlog.poster,
 				headImage: data.headImage,
 				name: data.name,
 			},
 			time: getDate(),
-			like: []
+			likeIds: [],
+			likePicture: [],
+			likenumber: 0
 		});
 	});
 	
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
 
-	replyCollection.find({themeId: replyBlog.themeId, contant: replyBlog.contant, poster: replyBlog.poster}).sort(['_id', 1]).toArray(function (err, replyData) {
+	replyCollection.find({themeId: replyBlog.themeId, content: replyBlog.content}).sort(['_id', 1]).toArray(function (err, replyData) {
 
-		// console.log(replyData);
+		console.log(replyData);
 		let replyId = replyData[replyData.length-1]._id.toString();
 		//将评论加入发帖中
 		postCollection.findOne({ _id: ObjectID(replyBlog.themeId) }, function (err, data) {
@@ -224,11 +228,13 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 				postCollection.save({
 					_id: ObjectID(data._id),
 					theme: data.theme,
-					contant: data.contant,
+					content: data.content,
 					poster: data.poster,
 					time: data.time,
 					replyBlogsId: replyBlogsId,
-					like: data.like
+					likeIds: data.likeIds,
+					likePicture: data.likePicture,
+					likenumber: data.likenumber
 				}, function () {
 					res.status(200).json({ "code": "1" });
 				})
@@ -247,7 +253,8 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 	let likeBlog = {
 		describe: req.body.describe,
 		id: req.body.id,
-		themeId: req.body.themeId
+		themeId: req.body.themeId,
+		headImage: req.body.headImage
 	}
 
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
@@ -257,23 +264,31 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 		//将点赞加入发帖中
 		postCollection.findOne({ _id: ObjectID(likeBlog.themeId) }, function (err, data) {
 			if (data) {
-				let likeIds = data.like;
+				let likeIds = data.likeIds;
+				let likePicture = data.likePicture;
+				let likenumber = data.likenumber;
 				if(likeIds.indexOf(likeBlog.id) > -1) {
 					console.log(likeIds);
 					likeIds.remove(likeBlog.id);
+					likePicture.remove(likeBlog.headImage);
 					console.log(likeIds);
 				}
 				else {
 					likeIds.push(likeBlog.id);
+					likePicture.push(likeBlog.headImage);
 				}
+				likenumber = likeIds.length();
+
 				postCollection.save({
 					_id: ObjectID(data._id),
 					theme: data.theme,
-					contant: data.contant,
+					content: data.content,
 					poster: data.poster,
 					time: data.time,
 					replyBlogsId: data.replyBlogsId,
-					like: likeIds
+					likeIds: likeIds,
+					likePicture: likePicture,
+					likenumber: likenumber
 				}, function () {
 					res.status(200).json({ "code": "1" });
 				})
@@ -288,20 +303,27 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 		//将点赞加入发帖中
 		replyCollection.findOne({ _id: ObjectID(likeBlog.themeId) }, function (err, data) {
 			if (data) {
-				let likeIds = data.like;
+				let likeIds = data.likeIds;
+				let likePicture = data.likePicture;
+				let likenumber = data.likenumber;
 				if(likeIds.indexOf(likeBlog.id) > -1) {
 					likeIds.remove(likeBlog.id);
+					likePicture.remove(likeBlog.headImage);
 				}
 				else {
 					likeIds.push(likeBlog.id);
+					likePicture.push(likeBlog.headImage);
 				}
+				likenumber = likeIds.length();
 				replyCollection.save({
 					_id: ObjectID(data._id),
 					themeId: data.themeId,
-					contant: data.contant,
+					content: data.content,
 					poster: data.poster,
 					time: data.time,
-					like: likeIds
+					likeIds: likeIds,
+					likePicture: likePicture,
+					likenumber: likenumber
 				}, function () {
 					res.status(200).json({ "code": "1" });
 				})
@@ -334,7 +356,7 @@ function getDate(){
 	nowDate = new Date();
 	nowDateArray = {
 		year: nowDate.getFullYear(),
-		mouth: nowDate.getMonth()+1,
+		month: nowDate.getMonth()+1,
 		day: nowDate.getDate(),
 		hour: nowDate.getHours(),
 		minutes: nowDate.getMinutes(),

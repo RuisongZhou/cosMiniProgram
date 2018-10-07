@@ -250,7 +250,7 @@ function getDate(){
 	nowDate = new Date();
 	nowDateArray = {
 		year: nowDate.getFullYear(),
-		mouth: nowDate.getMonth()+1,
+		month: nowDate.getMonth()+1,
 		day: nowDate.getDate(),
 		hour: nowDate.getHours(),
 		minutes: nowDate.getMinutes(),
