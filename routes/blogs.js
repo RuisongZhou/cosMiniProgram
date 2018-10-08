@@ -358,13 +358,14 @@ Array.prototype.remove = function(val) {
 
 function getDate(){
 	nowDate = new Date();
+	var nowMonth = nowDate.getMonth()+1;
 	nowDateArray = {
 		year: nowDate.getFullYear(),
-		month: nowDate.getMonth()+1,
-		day: nowDate.getDate(),
-		hour: nowDate.getHours(),
-		minutes: nowDate.getMinutes(),
-		second: nowDate.getSeconds()
+		month: month>9?nowMonth:"0"+nowMonth,
+		day: nowDate.getDate()>9?nowDate.getDate() :"0"+nowDate.getDate(),
+		hour: nowDate.getHours()>9?nowDate.getHours() :"0"+nowDate.getHours(),
+		minutes: nowDate.getMinutes()>9?nowDate.getMinutes() :"0"+nowDate.getMinutes(),
+		second: nowDate.getSeconds()>9?nowDate.getSeconds() :"0"+nowDate.getSeconds()
 	}
 
     return nowDateArray ;
