@@ -173,8 +173,8 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 			content: postBlog.content,
 			poster: {
 				id: postBlog.poster,
-				headImage: data.headImage,
-				name: data.name,
+				headimg: data.headimg,
+				nickName: data.nickName,
 			},
 			time: getDate(),
 			replyBlogsId: [],
@@ -208,8 +208,8 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 			content: replyBlog.content,
 			poster: {
 				id: replyBlog.poster,
-				headImage: data.headImage,
-				name: data.name,
+				headimg: data.headimg,
+				nickName: data.nickName,
 			},
 			time: getDate(),
 			likeIds: [],
@@ -263,7 +263,7 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 		describe: req.body.describe,
 		id: req.body.id,
 		themeId: req.body.themeId,
-		headImage: req.body.headImage
+		headimg: req.body.headimg
 	}
 
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
@@ -279,12 +279,12 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 				if(likeIds.indexOf(likeBlog.id) > -1) {
 					console.log(likeIds);
 					likeIds.remove(likeBlog.id);
-					likePicture.remove(likeBlog.headImage);
+					likePicture.remove(likeBlog.headimg);
 					console.log(likeIds);
 				}
 				else {
 					likeIds.push(likeBlog.id);
-					likePicture.push(likeBlog.headImage);
+					likePicture.push(likeBlog.headimg);
 				}
 				likenumber = likeIds.length;
 
@@ -318,11 +318,11 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 				let likenumber = data.likenumber;
 				if(likeIds.indexOf(likeBlog.id) > -1) {
 					likeIds.remove(likeBlog.id);
-					likePicture.remove(likeBlog.headImage);
+					likePicture.remove(likeBlog.headimg);
 				}
 				else {
 					likeIds.push(likeBlog.id);
-					likePicture.push(likeBlog.headImage);
+					likePicture.push(likeBlog.headimg);
 				}
 				likenumber = likeIds.length;
 				replyCollection.save({

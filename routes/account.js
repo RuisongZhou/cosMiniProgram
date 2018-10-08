@@ -31,9 +31,11 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 					res.status(200).json({
 						_id: data._id,
 						id: data.id,
+						nickName: data.nickName,
 						name: data.name,
+						gender: data.gender,
 						access: data.access,
-						headImage: data.headImage,
+						headimg: data.headimg,
 						tel: data.tel,
 						college: data.college,
 						scores: scoresData.scores
@@ -68,10 +70,13 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 	// 获取req.body传来的信息，暂存在UsearData中
 	let UsearData = {
 		id: req.body.id,
+		nickName: req.body.nickName,
 		name: req.body.name,
-		headImage: req.body.headImage,
+		gender: req.body.gender,
+		headimg: req.body.headimg,
 		tel: req.body.tel,
-		college: req.body.college
+		college: req.body.college,
+		access: 0
 	}
 
 	//开始初始化数据库
@@ -82,8 +87,10 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 		if (!data) {
 			accountCollection.insertOne({
 				id: UsearData.id,
+				nickName: UsearData.nickName,
 				name: UsearData.name,
-				headImage: UsearData.headImage,
+				gender: UsearData.gender,
+				headimg: UsearData.headimg,
 				tel: UsearData.tel,
 				college: UsearData.college
 			}, function () {
