@@ -200,6 +200,7 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 	//添加回帖
 	let replyCollection = await informationDB.getCollection("REPLYBLOGS");
 	let accountCollection = await informationDB.getCollection("ACCOUNT");
+	let postCollection = await informationDB.getCollection("POSTBLOGS");
 
 	accountCollection.findOne({ id: replyBlog.poster }, function (err, data) {
 		replyCollection.insertOne({
@@ -215,40 +216,44 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 			likePicture: [],
 			likenumber: 0
 		});
-	});
+
+		replyCollection.find({themeId: replyBlog.themeId, content: replyBlog.content}).sort(['_id', 1]).toArray(function (err, replyData) {
+
+			console.log(replyData);
+			let replyId = replyData[replyData.length-1]._id.toString();
+			//将评论加入发帖中
+			postCollection.findOne({ _id: ObjectID(replyBlog.themeId) }, function (err, data) {
 	
-	let postCollection = await informationDB.getCollection("POSTBLOGS");
-
-	replyCollection.find({themeId: replyBlog.themeId, content: replyBlog.content}).sort(['_id', 1]).toArray(function (err, replyData) {
-
-		console.log(replyData);
-		let replyId = replyData[replyData.length-1]._id.toString();
-		//将评论加入发帖中
-		postCollection.findOne({ _id: ObjectID(replyBlog.themeId) }, function (err, data) {
-
-			if (data) {
-				let replyBlogsId = data.replyBlogsId;
-				replyBlogsId.push(replyId);
-				postCollection.save({
-					_id: ObjectID(data._id),
-					theme: data.theme,
-					content: data.content,
-					poster: data.poster,
-					time: data.time,
-					replyBlogsId: replyBlogsId,
-					likeIds: data.likeIds,
-					likePicture: data.likePicture,
-					likenumber: data.likenumber
-				}, function () {
-					res.status(200).json({ "code": "1" });
-				})
-			}
-			else {
-				res.status(400).json({ "code": "-1" });
-			}
+				if (data) {
+					let replyBlogsId = data.replyBlogsId;
+					replyBlogsId.push(replyId);
+					postCollection.save({
+						_id: ObjectID(data._id),
+						theme: data.theme,
+						content: data.content,
+						poster: data.poster,
+						time: data.time,
+						replyBlogsId: replyBlogsId,
+						likeIds: data.likeIds,
+						likePicture: data.likePicture,
+						likenumber: data.likenumber,
+						board: data.board
+					}, function () {
+						res.status(200).json({ "code": "1" });
+					})
+				}
+				else {
+					res.status(400).json({ "code": "-1" });
+				}
+			});
 		});
 	});
+
+
 });
+	
+
+
 
 
 //点赞/取消点赞
@@ -292,7 +297,8 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					replyBlogsId: data.replyBlogsId,
 					likeIds: likeIds,
 					likePicture: likePicture,
-					likenumber: likenumber
+					likenumber: likenumber,
+					board: data.board
 				}, function () {
 					res.status(200).json({ "code": "1" });
 				})
