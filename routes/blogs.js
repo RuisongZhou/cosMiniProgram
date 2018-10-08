@@ -35,7 +35,7 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 });
 
 
-// 根据id获取发帖
+// 根据用户id获取发帖
 router.get('/user/postblogs', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
@@ -143,7 +143,7 @@ router.post('/newBoard', urlencodedParser, async function (req, res, next) {
 
 // 删除板块
 router.post('/board/remove', urlencodedParser, async function (req, res, next) {
-    let Id  =  req.body._id;
+    let Id  =  req.body.id;
 
     console.log(Id);
 
@@ -159,6 +159,26 @@ router.post('/board/remove', urlencodedParser, async function (req, res, next) {
     });
 
 });
+
+// 删除发帖
+router.delete('/postblogs/delete', urlencodedParser, async function (req, res, next) {
+    let Id  =  req.body.id;
+
+    console.log(Id);
+
+    let collection = await informationDB.getCollection("POSTBLOGS");
+    collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
+        if (!data) {
+            res.status(400).json({ "msg": "not found" })
+        } else {
+            collection.remove({_id: ObjectID(Id)},function () {
+                res.status(200).json({ "msg": "delete success" });
+                });
+        }
+    });
+
+});
+
 
 
 //发帖

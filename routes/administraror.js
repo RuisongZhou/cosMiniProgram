@@ -245,7 +245,7 @@ router.get('/user/getRegisterAdminList', urlencodedParser, async function (req, 
 
 // 删除用户 
 router.post('/user/remove', urlencodedParser, async function (req, res, next) {
-    let Id  =  req.body._id;
+    let Id  =  req.body.id;
 
     console.log(Id);
 
@@ -296,7 +296,7 @@ router.get('/model/listpage', urlencodedParser, async function (req, res, next) 
 
 // 删除商品
 router.post('/model/remove', urlencodedParser, async function (req, res, next) {
-    let Id  =  req.body._id;
+    let Id  =  req.body.id;
 
     console.log(Id);
 
