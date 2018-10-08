@@ -16,13 +16,14 @@ router.all('*', function(req, res, next) {
 
 //签到
 router.post('/sign', urlencodedParser, async function (req, res, next) {
+    console.log(req.body)
     let SIGN = {
 		id: req.body.id,
 		describe: req.body.describe
     }
     console.log(SIGN);
     //将数据插入签到表
-    if (SIGN.describe === "sign") {
+    if (SIGN.describe == "sign") {
         let signCollection = await informationDB.getCollection("SIGN");
         let scoreCollection = await informationDB.getCollection("SCORES");
         signCollection.findOne({ id: SIGN.id }, function (err, data) {
@@ -30,7 +31,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
             let nowDate = new Date();
             console.log(nowDate, data.lastSignTime,(nowDate != data.lastSignTime));
             if (nowDate != data.lastSignTime) {
-                if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　<= 1) {
+                if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　>= 1) {
                     serialSignNumber += 1;
                 }
                 else {
@@ -71,7 +72,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
 
 
 function getDays(strDateStart,strDateEnd){
-    iDays = parseInt(Math.abs(strDateS - strDateE ) / 1000 / 60 / 60 /24)//把相差的毫秒数转换为天数 
+    iDays = parseInt(Math.abs(strDateStart - strDateEnd ) / 1000 / 60 / 60 /24)//把相差的毫秒数转换为天数 
     return iDays ;
 }
 

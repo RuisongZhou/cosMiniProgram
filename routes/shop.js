@@ -21,7 +21,7 @@ router.get('/shop', urlencodedParser, async function (req, res, next) {
     console.log(params);
     let collection = await informationDB.getCollection("SHOP");
 	if (params.describe == 'getGoods') {
-        collection.find().sort(['_id', 1]).skip(params.page*10).limit(10).toArray(function (err, data) {
+        collection.find().sort(['_id', 1]).toArray(function (err, data) {
             // console.log(data);
 			res.status(200).json({
 				"goods": data
@@ -37,7 +37,6 @@ router.get('/shop', urlencodedParser, async function (req, res, next) {
 router.post('/shop/add', urlencodedParser, async function (req, res, next) {
     let good = {
 		describe: req.body.describe,
-		id: req.body.id,
         name: req.body.name,
         content: req.body.content,
         poster: req.body.poster,
@@ -139,10 +138,9 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
 // 购买商品
 router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
     let confirm = {
-		id: req.body.id,
+		buyer: req.body.buyer,
         modelId: req.body.modelId,
         buyNumber: req.body.buyNumber,
-        price: req.body.price,
         reMarks: req.body.reMarks
     }
 
@@ -158,6 +156,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 
     let shopCollection = await informationDB.getCollection("SHOP");
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
+    let scoresCollection = await informationDB.getCollection("SCORES");
 
     shopCollection.findOne({ _id: ObjectID(confirm.modelId) }, function (err, data) {
 		if (!data) {
@@ -169,21 +168,55 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                 modelId: confirm.modelId,
                 modelName: data.name,
                 buyNumber: confirm.buyNumber,
-                price: confirm.price,
+                price: data.price,
                 reMarks: confirm.reMarks,
                 orderTime: getDate(),
                 status: "0"
             }, function () {
-                shopCollection.save({
-                    _id: ObjectID(data.goodId),
-                    name: data.name,
-                    content: data.content,
-                    poster: data.poster,
-                    price: data.price,
-                    number: String(parseInt(data.body.number)-parseInt(buyNumber))
-                },function () {
-                    res.status(200).json({ "code": "1" })
+                console.log(data)
+                scoresCollection.findOne({ id: confirm.buyer }, function (err, scoreslData) {
+                    if (!scoreslData) {
+                        res.status(400).json({ "code": "-1" })
+                    } else {
+                        let buyerScores = {
+                            _id: scoreslData._id,
+                            id: scoreslData.id,
+                            scores: scoreslData.scores,
+                            deals: scoreslData.deals
+                        }
+
+                        let m_score = parseInt(buyerScores.scores) - parseInt(data.price*confirm.buyNumber);
+                        console.log(data.number,confirm.buyNumber)
+                        if (m_score < 0) {
+                            res.status(200).json({ "msg": "买不起" })
+                        }
+                        else if (parseInt(data.number) < parseInt(confirm.buyNumber)) {
+                            res.status(200).json({ "msg": "没这么多" })
+                        }
+                        else {
+                            shopCollection.save({
+                                _id: ObjectID(data._id),
+                                name: data.name,
+                                content: data.content,
+                                poster: data.poster,
+                                price: data.price,
+                                number: String(parseInt(data.number)-parseInt(confirm.buyNumber))
+                            },function () {
+                                buyerScores.scores = String(m_score);
+                                scoresCollection.save({
+                                    "_id": ObjectID(buyerScores._id),
+                                    "id": buyerScores.id,
+                                    "scores": buyerScores.scores,
+                                    "deals": buyerScores.deals
+                                }, function () {
+                                    res.status(200).json({ "code": "1" })
+                                });
+                            });
+                        }
+
+                    }
                 });
+
             })
 		}
 	});

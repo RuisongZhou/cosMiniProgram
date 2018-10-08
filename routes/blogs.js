@@ -21,8 +21,28 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 	console.log(params);
 	let collection = await informationDB.getCollection("POSTBLOGS");
 	if (params.describe == 'getPostBlogs') {
-		let page = parseInt(params.page);
-		collection.find({board: params.board}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+		// let page = parseInt(params.page);
+		collection.find({board: params.board}).sort(['_id', 1]).toArray(function (err, data) {
+            console.log(data);
+			res.status(200).json({
+				"PostBlogs": data
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
+
+// 根据id获取发帖
+router.get('/user/postblogs', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("POSTBLOGS");
+	if (params.describe == 'getPostBlogsByid') {
+		// let page = parseInt(params.page);
+		collection.find({"poster.id":params.id}).sort(['_id', 1]).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"PostBlogs": data
@@ -41,8 +61,8 @@ router.get('/boards', urlencodedParser, async function (req, res, next) {
 	console.log(params);
 	let collection = await informationDB.getCollection("BOARDS");
 	if (params.describe == 'getBoards') {
-		let page = parseInt(params.page);
-		collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+		// let page = parseInt(params.page);
+		collection.find().sort(['_id', 1]).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"Boards": data
@@ -81,28 +101,17 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
 
 	if (params.describe == 'getReplyBlogs') {
-		let page = parseInt(params.page);
-		if (page === 0) {
-			collection.find({themeId: params.themeId}).sort(['_id', 1]).limit(3).toArray(function (err, replydata) {
-				postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
-					res.status(200).json({
-						"postBlogs": postdata[0],
-						"replyBlogs": replydata
-					});
+		// let page = parseInt(params.page);
+
+		collection.find({themeId: params.themeId}).sort(['_id', 1]).toArray(function (err, replydata) {
+			postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
+				res.status(200).json({
+					"postBlogs": postdata[0],
+					"replyBlogs": replydata
 				});
 			});
+		});
 			
-		}
-		else {
-			collection.find({themeId: params.themeId}).sort(['_id', 1]).skip(page*10-7).limit(10).toArray(function (err, replydata) {
-				postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
-					res.status(200).json({
-						"postBlogs": postdata,
-						"replyBlogs": replydata
-					});
-				});
-			});
-		}
 	}
 	else {
 		res.status(400).json({ "code": "-1" });
@@ -215,44 +224,42 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 			likeIds: [],
 			likePicture: [],
 			likenumber: 0
-		});
+		}, function () {
+			replyCollection.find({themeId: replyBlog.themeId, content: replyBlog.content}).sort(['_id', 1]).toArray(function (err, replyData) {
 
-		replyCollection.find({themeId: replyBlog.themeId, content: replyBlog.content}).sort(['_id', 1]).toArray(function (err, replyData) {
-
-			console.log(replyData);
-			let replyId = replyData[replyData.length-1]._id.toString();
-			//将评论加入发帖中
-			postCollection.findOne({ _id: ObjectID(replyBlog.themeId) }, function (err, data) {
-	
-				if (data) {
-					let replyBlogsId = data.replyBlogsId;
-					replyBlogsId.push(replyId);
-					postCollection.save({
-						_id: ObjectID(data._id),
-						theme: data.theme,
-						content: data.content,
-						poster: data.poster,
-						time: data.time,
-						replyBlogsId: replyBlogsId,
-						likeIds: data.likeIds,
-						likePicture: data.likePicture,
-						likenumber: data.likenumber,
-						board: data.board
-					}, function () {
-						res.status(200).json({ "code": "1" });
-					})
-				}
-				else {
-					res.status(400).json({ "code": "-1" });
-				}
+				console.log(replyData);
+				let replyId = replyData[replyData.length-1]._id.toString();
+				//将评论加入发帖中
+				postCollection.findOne({ _id: ObjectID(replyBlog.themeId) }, function (err, data) {
+		
+					if (data) {
+						let replyBlogsId = data.replyBlogsId;
+						replyBlogsId.push(replyId);
+						postCollection.save({
+							_id: ObjectID(data._id),
+							theme: data.theme,
+							content: data.content,
+							poster: data.poster,
+							time: data.time,
+							replyBlogsId: replyBlogsId,
+							likeIds: data.likeIds,
+							likePicture: data.likePicture,
+							likenumber: data.likenumber,
+							board: data.board
+						}, function () {
+							res.status(200).json({ "code": "1" });
+						})
+					}
+					else {
+						res.status(400).json({ "code": "-1" });
+					}
+				});
 			});
 		});
 	});
 
 
 });
-	
-
 
 
 
