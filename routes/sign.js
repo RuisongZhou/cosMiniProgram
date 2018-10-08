@@ -80,7 +80,7 @@ function getDate(){
 	var nowMonth = nowDate.getMonth()+1;
 	nowDateArray = {
 		year: nowDate.getFullYear(),
-		month: month>9?nowMonth:"0"+nowMonth,
+		month: nowMonth>9?nowMonth:"0"+nowMonth,
 		day: nowDate.getDate()>9?nowDate.getDate() :"0"+nowDate.getDate(),
 		hour: nowDate.getHours()>9?nowDate.getHours() :"0"+nowDate.getHours(),
 		minutes: nowDate.getMinutes()>9?nowDate.getMinutes() :"0"+nowDate.getMinutes(),
