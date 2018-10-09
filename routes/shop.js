@@ -39,7 +39,7 @@ router.get('/shop/getById', urlencodedParser, async function (req, res, next) {
     console.log(params);
     let collection = await informationDB.getCollection("SHOP");
 	if (params.describe == 'getGoods') {
-        collection.find({_id: ObjectID(params)}).sort(['_id', 1]).toArray(function (err, data) {
+        collection.find({_id: ObjectID(params.id)}).sort(['_id', 1]).toArray(function (err, data) {
             // console.log(data);
 			res.status(200).json({
 				"good": data[0]
@@ -73,7 +73,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
         content: req.body.content,
         poster: req.body.poster,
         price: req.body.price,
-        number: req.body.number
+        number: req.body.number,
+        picture: req.body.picture
     }
 
     console.log(good);
@@ -85,7 +86,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
             content: good.content,
             poster: good.poster,
             price: good.price,
-            number: good.number
+            number: good.number,
+            picture: good.picture
         }, function () {
             res.status(200).json({ "code": "1" });
         })
@@ -135,7 +137,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         content: req.body.content,
         poster: req.body.poster,
         price: req.body.price,
-        number: req.body.number
+        number: req.body.number,
+        picture: req.body.picture
     }
 
     if (good.describe == 'ChangeGood') {
@@ -154,7 +157,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
                         content: good.content,
                         poster: good.poster,
                         price: good.price,
-                        number: req.body.number
+                        number: req.body.number,
+                        picture: good.picture
                     },function () {
                         res.status(200).json({ "code": "1" })
                     });
@@ -198,12 +202,16 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                 orderNumber: orderNumber,
                 buyer: confirm.buyer,
                 modelId: confirm.modelId,
-                modelName: data.name,
                 buyNumber: confirm.buyNumber,
-                price: data.price,
                 reMarks: confirm.reMarks,
                 orderTime: getDate(),
-                status: "0"
+                status: "0",
+                model: {
+                    modelName: data.name,                                                                                      
+                    content: data.content,                          
+                    price: data.price,
+                    picture: data.picture
+                }
             }, function () {
                 console.log(data)
                 scoresCollection.findOne({ id: confirm.buyer }, function (err, scoreslData) {
