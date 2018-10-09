@@ -16,7 +16,6 @@ router.all('*', function(req, res, next) {
 
 //签到
 router.post('/sign', urlencodedParser, async function (req, res, next) {
-    console.log(req.body)
     let SIGN = {
 		id: req.body.id,
 		describe: req.body.describe
@@ -31,7 +30,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
             let nowDate = new Date();
             console.log(nowDate, data.lastSignTime,(nowDate != data.lastSignTime));
             if (nowDate != data.lastSignTime) {
-                if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　<= 1) {
+                if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　>= 1) {
                     serialSignNumber += 1;
                 }
                 else {

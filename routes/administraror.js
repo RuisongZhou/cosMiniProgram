@@ -15,6 +15,36 @@ router.all('*', function(req, res, next) {
 	next();
 });
 
+
+//登录
+router.post('/login', urlencodedParser, async function (req, res, next) {
+    let user = {
+		username: req.body.username,
+        password: req.body.password
+    }
+
+    console.log(user);
+
+    let collection = await informationDB.getCollection("ADMINISTORATOR");
+
+    collection.findOne({ username: user.username}, function (err, data) {
+        if(data) {
+            if (data.password === user.password) {
+                res.status(200).json({ "result": "0","message": "登录成功","user": data})
+            }
+            else {
+                res.status(400).json({ "result": "-1","message": "密码错误"})
+            }
+        }
+        else {
+            res.status(400).json({ "result": "-1","message": "查无此人"})
+        }
+
+    })
+
+});
+
+
 //根据账户username获取账户信息
 router.get('/administorator', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
@@ -354,11 +384,11 @@ router.delete('/model/batchremove', urlencodedParser, async function (req, res, 
 router.get('/model/confirmlistpage', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("ADMINISTORATOR");
+	let collection = await informationDB.getCollection("CONFIRMLIST");
     let page = parseInt(params.page);
     collection.find({status: "0"}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
         // console.log(data);
-        collection.find().toArray(function (err, allData) {
+        collection.find({status: "0"}).toArray(function (err, allData) {
             res.status(200).json({
                 "total": allData.length,
                 "models": data
@@ -370,7 +400,7 @@ router.get('/model/confirmlistpage', urlencodedParser, async function (req, res,
 
 //核销商品
 router.post('/model/confirm', urlencodedParser, async function (req, res, next) {
-    let orderNumber = req.id;
+    let orderNumber = req.body.id;
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
     confirmCollection.findOne({orderNumber: orderNumber}, function (err, data) {
         if (!data) {

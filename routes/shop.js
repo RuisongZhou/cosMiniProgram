@@ -51,6 +51,19 @@ router.get('/shop/getById', urlencodedParser, async function (req, res, next) {
 	}
 });
 
+// 获取个人核销商品信息
+router.get('/shop/confirmlist', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("CONFIRMLIST");
+    collection.find({buyer: params.id}).sort(['_id', 1]).toArray(function (err, data) {
+        res.status(200).json({
+            "total": data.length,
+            "models": data
+        });
+    });
+});
+
 
 //增加商品
 router.post('/shop/add', urlencodedParser, async function (req, res, next) {
