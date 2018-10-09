@@ -33,6 +33,25 @@ router.get('/shop', urlencodedParser, async function (req, res, next) {
 	}
 });
 
+//根据id获取商品信息
+router.get('/shop/getById', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+    console.log(params);
+    let collection = await informationDB.getCollection("SHOP");
+	if (params.describe == 'getGoods') {
+        collection.find({_id: ObjectID(params)}).sort(['_id', 1]).toArray(function (err, data) {
+            // console.log(data);
+			res.status(200).json({
+				"good": data[0]
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
+
 //增加商品
 router.post('/shop/add', urlencodedParser, async function (req, res, next) {
     let good = {
@@ -220,7 +239,6 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
             })
 		}
 	});
-
 
 });
 

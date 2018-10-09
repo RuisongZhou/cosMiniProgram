@@ -326,7 +326,8 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					likeIds: likeIds,
 					likePicture: likePicture,
 					likenumber: likenumber,
-					board: data.board
+					board: data.board,
+					picture: data.picture
 				}, function () {
 					res.status(200).json({ "code": "1" });
 				})

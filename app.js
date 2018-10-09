@@ -12,6 +12,7 @@ var sign = require('./routes/sign');
 var shop = require('./routes/shop');
 var blogs = require('./routes/blogs');
 var administraror = require('./routes/administraror');
+var qiniu = require('./routes/qiniu');
 
 var app = express();
 
@@ -34,6 +35,7 @@ app.use('/', sign);
 app.use('/', shop);
 app.use('/', blogs);
 app.use('/', administraror);
+app.use('/', qiniu);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
