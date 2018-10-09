@@ -108,8 +108,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 		if (!data) {
 			scoresCollection.insertOne({
 				id: UsearData.id,
-				scores: "0",
-				deals: []
+				scores: "0"
 			}, function () {
 				status = 0;
 			})
@@ -163,95 +162,6 @@ router.get('/account/scores', urlencodedParser, async function (req, res, next) 
 	});
 });
 
-//根据账户id获取积分流水
-router.get('/account/scores/deal', urlencodedParser, async function (req, res, next) {
-	let params = req.query;
-	let collection = await informationDB.getCollection("SCORES");
-	collection.findOne({ id: params.id }, function (err, data) {
-		if (!data) {
-			res.status(400).json({ "code": "-1" })
-		} else {
-			res.status(200).json({
-				deals: data.deals
-			});
-		}
-	});
-});
-
-//积分交易
-router.post('/account/scores', urlencodedParser, async function (req, res, next) {
-	let aDeal = {
-		sender: req.body.sender,
-		to: req.body.to,
-		score: req.body.score
-	}
-
-	let collection = await informationDB.getCollection("SCORES");
-	//在发送人积分表中加入数据
-	collection.findOne({ id: aDeal.sender }, function (err, data) {
-		if (!data) {
-			res.status(400).json({ "code": "-1" })
-		} else {
-			let senderScores = {
-				_id: data._id,
-				id: data.id,
-				scores: data.scores,
-				deals: data.deals
-			}
-			if (aDeal.score < 0) {
-				res.status(200).json({ "code": "-2" })
-			}
-			else {
-				senderScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
-				let m_score = parseInt(senderScores.scores) - parseInt(aDeal.score);
-				// console.log(m_score);
-				if (m_score < 0) {
-					res.status(200).json({ "code": "-3" })
-				}
-	
-				else {
-					senderScores.scores = String(m_score);
-					// console.log(senderScores);
-		
-					collection.save({
-						"_id": ObjectID(senderScores._id),
-						"id": senderScores.id,
-						"scores": senderScores.scores,
-						"deals": senderScores.deals
-					});
-		
-		
-					//在收分人积分表中加入数据
-					collection.findOne({ id: aDeal.to }, function (err, data) {
-						if (!data) {
-							res.status(400).json({ "code": "-1" })
-						} else {
-							let toScores = {
-								_id: data._id,
-								id: data.id,
-								scores: data.scores,
-								deals: data.deals
-							}
-				
-							toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
-							toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
-				
-							collection.save({
-								"_id": ObjectID(toScores._id),
-								"id": toScores.id,
-								"scores": toScores.scores,
-								"deals": toScores.deals
-							});
-						}
-					});
-		
-					res.status(200).json({ "code": "1" })
-				}
-			}
-		}
-	});
-
-});
 
 function getDate(){
 	nowDate = new Date();

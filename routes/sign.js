@@ -14,6 +14,25 @@ router.all('*', function(req, res, next) {
 	next();
 });
 
+
+//获取签到信息
+router.get('/sign', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+    console.log(params);
+    let collection = await informationDB.getCollection("SIGN");
+	if (params.describe == 'getSign') {
+        collection.find({id: params.id}).sort(['_id', 1]).toArray(function (err, data) {
+            // console.log(data);
+			res.status(200).json({
+				"sign": data[0]
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
 //签到
 router.post('/sign', urlencodedParser, async function (req, res, next) {
     let SIGN = {
@@ -27,20 +46,26 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
         let scoreCollection = await informationDB.getCollection("SCORES");
         signCollection.findOne({ id: SIGN.id }, function (err, data) {
             let serialSignNumber = parseInt(data.serialSignNumber);
+            let signNumber = parseInt(data.signNumber);
             let nowDate = new Date();
             console.log(nowDate, data.lastSignTime,(nowDate != data.lastSignTime));
             if (nowDate != data.lastSignTime) {
                 if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　>= 1) {
-                    serialSignNumber += 1;
+                    if (getDays(data.lastSignTime,nowDate) == 1) {
+                        serialSignNumber += 1;
+                        signNumber += 1;
+                    }
+                    else {
+                        serialSignNumber = 0;
+                        signNumber += 1;
+                    }
                 }
-                else {
-                    serialSignNumber = 0;
-                }
+
                 signCollection.save({
                     _id: data._id,
                     id: data.id,
                     lastSignTime: nowDate,
-                    signNumber: String(parseInt(data.signNumber)+1),
+                    signNumber: String(signNumber),
                     serialSignNumber: String(serialSignNumber)
                 });
     
@@ -50,8 +75,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
                         scoreCollection.save({
                             "_id": data._id,
                             "id": data.id,
-                            "scores": String(parseInt(data.scores)+1),
-                            "deals": data.deals
+                            "scores": String(parseInt(data.scores)+1)
                         });
                     });
                 }
@@ -71,7 +95,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
 
 
 function getDays(strDateStart,strDateEnd){
-    iDays = parseInt(Math.abs(strDateStart - strDateEnd ) / 1000 / 60 / 60 /24)//把相差的毫秒数转换为天数 
+    iDays = parseInt(strDateStart.getDate()) - parseInt(strDateEnd.getDate());
     return iDays ;
 }
 

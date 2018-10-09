@@ -84,34 +84,33 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
         to: req.body.to,
         acceptPermission: req.body.acceptPermission,
 		score: req.body.score
-	}
+    }
+    console.log(aDeal)
 
     let collection = await informationDB.getCollection("SCORES");
     let adminCollection = await informationDB.getCollection("ADMINSCORES");
+    let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
 
 	//在发送人积分表中加入数据
-	adminCollection.findOne({ id: aDeal.sender }, function (err, data) {
+	adminCollection.findOne({ username: aDeal.sender }, function (err, data) {
 		if (!data) {
 			res.status(400).json({ "code": "-1" })
 		} else {
 			let senderScores = {
 				_id: data._id,
-				id: data.id,
-				scores: data.scores,
-				deals: data.deals
+				username: data.username,
+				scores: data.scores
 			}
 			if (aDeal.score < 0) {
 				res.status(200).json({ "code": "-2" })
 			}
 			else {
-                senderScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
 
                 if (aDeal.senderPermission == "3") {
                     adminCollection.save({
-                        "_id": ObjectID(senderScores._id),
-                        "id": senderScores.id,
-                        "scores": senderScores.scores,
-                        "deals": senderScores.deals
+                        _id: ObjectID(senderScores._id),
+                        username: senderScores.username,
+                        scores: senderScores.scores
                     });
                 }
                 else if (aDeal.senderPermission == "2") {
@@ -123,70 +122,59 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                     else {
                         senderScores.scores = String(m_score);
                         adminCollection.save({
-                            "_id": ObjectID(senderScores._id),
-                            "id": senderScores.id,
-                            "scores": senderScores.scores,
-                            "deals": senderScores.deals
+                            _id: ObjectID(senderScores._id),
+                            username: senderScores.username,
+                            scores: senderScores.scores
                         });
                     }
                 }
 
-                    //在收分人积分表中加入数据
-                    if (acceptPermission == "2") {
-                        adminCollection.findOne({ id: aDeal.to }, function (err, data) {
-                            if (!data) {
-                                res.status(400).json({ "code": "-1" })
-                            } else {
-                                let toScores = {
-                                    _id: data._id,
-                                    id: data.id,
-                                    scores: data.scores,
-                                    deals: data.deals
-                                }
-                    
-                                toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
-                                toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
-                    
-                                adminCollection.save({
-                                    "_id": ObjectID(toScores._id),
-                                    "id": toScores.id,
-                                    "scores": toScores.scores,
-                                    "deals": toScores.deals
-                                });
-                            }
-                        });
-            
-                        res.status(200).json({ "code": "1" })
-                    }
-
-                else if (acceptPermission == "1") {
-                    collection.findOne({ id: aDeal.to }, function (err, data) {
-                        if (!data) {
+                //在收分人积分表中加入数据
+                if (aDeal.acceptPermission == "2") {
+                    adminCollection.findOne({ username: aDeal.to }, function (err, acceptData) {
+                        if (!acceptData) {
+                            console.log(acceptData)
                             res.status(400).json({ "code": "-1" })
                         } else {
                             let toScores = {
-                                _id: data._id,
-                                id: data.id,
-                                scores: data.scores,
-                                deals: data.deals
+                                _id: acceptData._id,
+                                username: acceptData.username,
+                                scores: acceptData.scores
                             }
                 
-                            toScores.deals.push({"sender": aDeal.sender,"to": aDeal.to, "score": aDeal.score, "time": getDate()});
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
-                            collection.save({
-                                "_id": ObjectID(toScores._id),
-                                "id": toScores.id,
-                                "scores": toScores.scores,
-                                "deals": toScores.deals
+                            adminCollection.save({
+                                _id: ObjectID(toScores._id),
+                                username: toScores.username,
+                                scores: toScores.scores
                             });
                         }
                     });
         
-                    res.status(200).json({ "code": "1" })
                 }
 
-				
+                else if (aDeal.acceptPermission == "1") {
+                    collection.findOne({ id: aDeal.to }, function (err, userData) {
+                        if (!userData) {
+                            res.status(400).json({ "code": "-1" })
+                        } else {
+                            let toScores = {
+                                _id: userData._id,
+                                id: userData.id,
+                                scores: userData.scores
+                            }
+                            toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
+                
+                            collection.save({
+                                _id: ObjectID(toScores._id),
+                                id: toScores.id,
+                                scores: toScores.scores
+                            });
+                        }
+                    });
+                }
+                res.status(200).json({ "code": "1" })
 			}
 		}
 	});
@@ -225,8 +213,7 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                     if (!data) {
                         scoresCollection.insertOne({
                             username: UsearData.username,
-                            scores: "0",
-                            deals: []
+                            scores: "0"
                         }, function () {
                             res.status(200).json({ "code": "200" });
                         })

@@ -221,8 +221,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                         let buyerScores = {
                             _id: scoreslData._id,
                             id: scoreslData.id,
-                            scores: scoreslData.scores,
-                            deals: scoreslData.deals
+                            scores: scoreslData.scores
                         }
 
                         let m_score = parseInt(buyerScores.scores) - parseInt(data.price*confirm.buyNumber);
@@ -246,8 +245,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                 scoresCollection.save({
                                     "_id": ObjectID(buyerScores._id),
                                     "id": buyerScores.id,
-                                    "scores": buyerScores.scores,
-                                    "deals": buyerScores.deals
+                                    "scores": buyerScores.scores
                                 }, function () {
                                     res.status(200).json({ "code": "1", "orderNumber": orderNumber })
                                 });
