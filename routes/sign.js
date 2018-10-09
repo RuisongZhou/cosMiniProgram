@@ -48,9 +48,16 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
             let serialSignNumber = parseInt(data.serialSignNumber);
             let signNumber = parseInt(data.signNumber);
             let nowDate = new Date();
-            console.log(nowDate, data.lastSignTime,(nowDate != data.lastSignTime));
-            if (nowDate != data.lastSignTime) {
-                if (data.lastSignTime != "" || getDays(data.lastSignTime,nowDate)　>= 1) {
+
+            console.log(getDays(data.lastSignTime,data.lastSignTime,nowDate));
+            console.log(data)
+
+            if (data.lastSignTime == "") {
+                serialSignNumber += 1;
+                signNumber += 1;
+            }
+            else {
+                if (getDays(data.lastSignTime,nowDate)　>= 1) {
                     if (getDays(data.lastSignTime,nowDate) == 1) {
                         serialSignNumber += 1;
                         signNumber += 1;
@@ -59,30 +66,29 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
                         serialSignNumber = 0;
                         signNumber += 1;
                     }
-                }
-
-                signCollection.save({
-                    _id: data._id,
-                    id: data.id,
-                    lastSignTime: nowDate,
-                    signNumber: String(signNumber),
-                    serialSignNumber: String(serialSignNumber)
-                });
-    
-                //签到加分
-                if (serialSignNumber >=2) {
-                    scoreCollection.findOne({ id: SIGN.id }, function (err, data) {
-                        scoreCollection.save({
-                            "_id": data._id,
-                            "id": data.id,
-                            "scores": String(parseInt(data.scores)+1)
-                        });
+                    signCollection.save({
+                        _id: data._id,
+                        id: data.id,
+                        lastSignTime: nowDate,
+                        signNumber: String(signNumber),
+                        serialSignNumber: String(serialSignNumber)
                     });
+        
+                    //签到加分
+                    if (serialSignNumber >=2) {
+                        scoreCollection.findOne({ id: SIGN.id }, function (err, data) {
+                            scoreCollection.save({
+                                "_id": data._id,
+                                "id": data.id,
+                                "scores": String(parseInt(data.scores)+1)
+                            });
+                        });
+                    }
+                    res.status(200).json({ "code": "1" });
                 }
-                res.status(200).json({ "code": "1" });
-            }
-            else {
-                res.status(200).json({ "code": "-2" });
+                else {
+                    res.status(400).json({ "code": "-2" });
+                }
             }
 
         });
