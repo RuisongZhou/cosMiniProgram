@@ -224,6 +224,20 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 
 });
 
+// 获取个人核销商品信息
+router.get('/shop/confirm', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("ADMINISTORATOR");
+    collection.find({buyer: params.id}).sort(['_id', 1]).toArray(function (err, data) {
+        // console.log(data);
+        res.status(200).json({
+            "total": data.length,
+            "models": data
+        });
+    });
+});
+
 function getDate(){
 	nowDate = new Date();
 	var nowMonth = nowDate.getMonth()+1;
