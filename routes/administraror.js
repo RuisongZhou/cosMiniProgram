@@ -15,15 +15,15 @@ router.all('*', function(req, res, next) {
 	next();
 });
 
-//根据账户id获取账户信息
+//根据账户username获取账户信息
 router.get('/administorator', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
     let collection = await informationDB.getCollection("ADMINISTORATOR");
     let scoresCollection = await informationDB.getCollection("ADMINSCORES");
-	collection.findOne({ id: params.id }, function (err, data) {
+	collection.findOne({ username: params.username }, function (err, data) {
 		if (data) {
-			scoresCollection.findOne({ id: params.id }, function (err, scoresData) {
+			scoresCollection.findOne({ username: params.username }, function (err, scoresData) {
 				if (!scoresData) {
 					res.status(400).json({ "code": "-1" })
 				} else {
@@ -167,34 +167,52 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
 router.post('/register', urlencodedParser, async function (req, res, next) {
 	// 获取req.body传来的信息，暂存在UsearData中
 	let UsearData = {
-        username: data.username,
-        name: data.name,
-        password: data.password,
-        community: data.community,
-        tel: data.tel,
-        permission: data.permission
+        username: req.body.username,
+        name: req.body.name,
+        password: req.body.password,
+        community: req.body.community,
+        tel: req.body.tel,
+        permission: req.body.permission
 	}
 
-	//开始初始化数据库
-	let collection = await informationDB.getCollection("ADMINISTORATOR");
+    //开始初始化数据库
+    console.log(UsearData)
+    let collection = await informationDB.getCollection("ADMINISTORATOR");
+    let scoresCollection = await informationDB.getCollection("ADMINSCORES");
 
-	collection.findOne({ community: UsearData.community }, function (err, data) {
+	collection.findOne({ username: UsearData.username }, function (err, data) {
 		if (!data) {
 			collection.insertOne({
-                username: data.username,
-                name: data.name,
-                password: data.password,
-                community: data.community,
-                tel: data.tel,
-                permission: data.permission
+                username: UsearData.username,
+                name: UsearData.name,
+                password: UsearData.password,
+                community: UsearData.community,
+                tel: UsearData.tel,
+                permission: UsearData.permission
 			}, function () {
-				res.status(200).json({ "code": "200" });
+					//初始化积分表
+                scoresCollection.findOne({ username: UsearData.username }, function (err, data) {
+                    if (!data) {
+                        scoresCollection.insertOne({
+                            username: UsearData.username,
+                            scores: "0",
+                            deals: []
+                        }, function () {
+                            res.status(200).json({ "code": "200" });
+                        })
+                    }
+                    else {
+                        res.status(200).json({ "code": "500" });
+                    }
+                });
 			})
 		}
 		else {
 			res.status(200).json({ "code": "500" });
 		}
-	});
+    });
+    
+
 
 });
 
@@ -202,15 +220,16 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
 router.get('/user/list', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("ADMINISTORATOR");
+	let collection = await informationDB.getCollection("ACCOUNT");
     let page = parseInt(params.page);
-    collection.find({community: params.community}).sort(['_id', 1]).skip(page*20).limit(20).toArray(function (err, data) {
-        // console.log(data);
-        let total =  collection.find({community: params.community}).count();
-        res.status(200).json({
-            "total": total.toString(),
-            "user": data
-        });
+    collection.find({college: params.community}).sort(['_id', 1]).skip(page*20).limit(20).toArray(function (err, data) {
+        console.log(data);
+        collection.find({college: params.community}).toArray(function (err, allData) {
+            res.status(200).json({
+                "total": allData.length,
+                "user": data
+            });
+        })
     });
 });
 
@@ -221,12 +240,13 @@ router.get('/user/getRegisterAdminList', urlencodedParser, async function (req, 
 
     let collection = await informationDB.getCollection("ADMINISTORATOR");
     
-    collection.findOne({ _id: ObjectID(params._id) }, function (err, data) {
+    collection.findOne({ username: params.username }, function (err, data) {
         if (data) {
-            if (params.permisson == "3") {
-                collection.find({permisson: "2"}).sort(['_id', 1]).toArray(function (err, data) {
+            console.log(data)
+            if (data.permission == '3') {
+                collection.find({permission: '2'}).sort(['_id', 1]).toArray(function (err, userdata) {
                     res.status(200).json({
-                        "UsersInformation": data
+                        "UsersInformation": userdata
                     });
                 });
             }
@@ -244,17 +264,17 @@ router.get('/user/getRegisterAdminList', urlencodedParser, async function (req, 
 });
 
 // 删除用户 
-router.post('/user/remove', urlencodedParser, async function (req, res, next) {
-    let Id  =  req.body.id;
+router.delete('/user/remove', urlencodedParser, async function (req, res, next) {
+    let username  =  req.body.username;
 
-    console.log(Id);
+    console.log(req.body);
 
     let collection = await informationDB.getCollection("ADMINISTORATOR");
-    collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
+    collection.findOne({ username: username }, function (err, data) {
         if (!data) {
             res.status(400).json({ "msg": "not found" })
         } else {
-            collection.remove({_id: ObjectID(Id)},function () {
+            collection.remove({username: username},function () {
                 res.status(200).json({ "msg": "delete success" });
                 });
         }
@@ -264,14 +284,14 @@ router.post('/user/remove', urlencodedParser, async function (req, res, next) {
 
 
 // 批量删除用户 
-router.post('/user/batchremove', urlencodedParser, async function (req, res, next) {
-    let Ids  =  req.body.ids;
-    var Idsarray = Ids.split(",");
-    console.log(Idsarray);
+router.delete('/user/batchremove', urlencodedParser, async function (req, res, next) {
+    let usernames  =  req.body.usernames;
+    var usernameArray = usernames.split(",");
+    console.log(usernameArray);
 
     let collection = await informationDB.getCollection("ADMINISTORATOR");
 
-    collection.remove({_id: {"$in": ObjectID(Idsarray)}},function () {
+    collection.remove({username: {"$in": usernameArray}},function () {
         res.status(200).json({ "msg": "delete success" });
         });
 
@@ -281,21 +301,21 @@ router.post('/user/batchremove', urlencodedParser, async function (req, res, nex
 router.get('/model/listpage', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("ADMINISTORATOR");
+	let collection = await informationDB.getCollection("SHOP");
     let page = parseInt(params.page);
     collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
-        // console.log(data);
-        let total =  collection.find().count();
-        res.status(200).json({
-            "total": total.toString(),
-            "models": data
-        });
+        collection.find().toArray(function (err, allData) {
+            res.status(200).json({
+                "total": allData.length,
+                "models": data
+            });
+        })
     });
 });
 
 
 // 删除商品
-router.post('/model/remove', urlencodedParser, async function (req, res, next) {
+router.delete('/model/remove', urlencodedParser, async function (req, res, next) {
     let Id  =  req.body.id;
 
     console.log(Id);
@@ -314,14 +334,17 @@ router.post('/model/remove', urlencodedParser, async function (req, res, next) {
 });
 
 // 批量删除商品
-router.post('/model/batchremove', urlencodedParser, async function (req, res, next) {
+router.delete('/model/batchremove', urlencodedParser, async function (req, res, next) {
     let Ids  =  req.body.ids;
     var Idsarray = Ids.split(",");
     console.log(Idsarray);
+    for(var i=0;i<Idsarray.length;i++){
+        Idsarray[i] = ObjectID(Idsarray[i]);
+       }
 
     let collection = await informationDB.getCollection("SHOP");
 
-    collection.remove({_id: {"$in": ObjectID(Idsarray)}},function () {
+    collection.remove({_id: {"$in": Idsarray}},function () {
         res.status(200).json({ "msg": "delete success" });
         });
 
@@ -335,11 +358,12 @@ router.get('/model/confirmlistpage', urlencodedParser, async function (req, res,
     let page = parseInt(params.page);
     collection.find({status: "0"}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
         // console.log(data);
-        let total =  collection.find({status: "0"}).count();
-        res.status(200).json({
-            "total": total.toString(),
-            "models": data
-        });
+        collection.find().toArray(function (err, allData) {
+            res.status(200).json({
+                "total": allData.length,
+                "models": data
+            });
+        })
     });
 });
 

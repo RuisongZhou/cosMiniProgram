@@ -209,7 +209,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     "scores": buyerScores.scores,
                                     "deals": buyerScores.deals
                                 }, function () {
-                                    res.status(200).json({ "code": "1" })
+                                    res.status(200).json({ "code": "1", "orderNumber": orderNumber })
                                 });
                             });
                         }

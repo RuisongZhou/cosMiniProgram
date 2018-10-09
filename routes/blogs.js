@@ -103,7 +103,7 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 	if (params.describe == 'getReplyBlogs') {
 		// let page = parseInt(params.page);
 
-		collection.find({themeId: params.themeId}).sort(['_id', 1]).toArray(function (err, replydata) {
+		collection.find({themeId: params.themeId}).sort(['time', 1]).toArray(function (err, replydata) {
 			postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
 				res.status(200).json({
 					"postBlogs": postdata[0],
@@ -265,7 +265,8 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 							likeIds: data.likeIds,
 							likePicture: data.likePicture,
 							likenumber: data.likenumber,
-							board: data.board
+							board: data.board,
+							picture: data.picture
 						}, function () {
 							res.status(200).json({ "code": "1" });
 						})
