@@ -21,7 +21,7 @@ router.get('/shop', urlencodedParser, async function (req, res, next) {
     console.log(params);
     let collection = await informationDB.getCollection("SHOP");
 	if (params.describe == 'getGoods') {
-        collection.find().sort(['_id', 1]).toArray(function (err, data) {
+        collection.find({shopKind: params.shopKind}).sort(['_id', 1]).toArray(function (err, data) {
             // console.log(data);
 			res.status(200).json({
 				"goods": data
