@@ -31,19 +31,19 @@ router.post('/login', urlencodedParser, async function (req, res, next) {
         if(data) {
             if (data.password === user.password) {
                 if (data.access === 1) {
-                    res.status(200).json({ "result": "0","message": "登录成功","user": data})
+                    res.status(200).json({ "code": "200","description": "登录成功","user": data})
                 }
                 else {
-                    res.status(400).json({ "result": "-1","message": "等待认证"})
+                    res.status(500).json({ "code": "500","description": "等待认证"})
                 }
 
             }
             else {
-                res.status(400).json({ "result": "-1","message": "密码错误"})
+                res.status(500).json({ "code": "500","description": "密码错误"})
             }
         }
         else {
-            res.status(400).json({ "result": "-1","message": "查无此人"})
+            res.status(500).json({ "code": "500","description": "查无此人"})
         }
 
     })

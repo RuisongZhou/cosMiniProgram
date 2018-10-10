@@ -26,7 +26,7 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 		if (data) {
 			scoresCollection.findOne({ id: params.id }, function (err, scoresData) {
 				if (!scoresData) {
-					res.status(400).json({ "code": "-1" })
+					res.status(200).json({ "access": 0 })
 				} else {
 					res.status(200).json({
 						_id: data._id,
@@ -44,7 +44,7 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 			});
 		}
 		else {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "access": 0 })
 		}
 
 	});
