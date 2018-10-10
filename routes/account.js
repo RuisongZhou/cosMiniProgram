@@ -92,7 +92,8 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 				gender: UsearData.gender,
 				headimg: UsearData.headimg,
 				tel: UsearData.tel,
-				college: UsearData.college
+				college: UsearData.college,
+				access: UsearData.access
 			}, function () {
 				status = 0;
 			})

@@ -30,7 +30,13 @@ router.post('/login', urlencodedParser, async function (req, res, next) {
     collection.findOne({ username: user.username}, function (err, data) {
         if(data) {
             if (data.password === user.password) {
-                res.status(200).json({ "result": "0","message": "登录成功","user": data})
+                if (data.access === 1) {
+                    res.status(200).json({ "result": "0","message": "登录成功","user": data})
+                }
+                else {
+                    res.status(400).json({ "result": "-1","message": "等待认证"})
+                }
+
             }
             else {
                 res.status(400).json({ "result": "-1","message": "密码错误"})
@@ -42,6 +48,21 @@ router.post('/login', urlencodedParser, async function (req, res, next) {
 
     })
 
+});
+
+
+//根据username获取流水
+router.get('/user/deals', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+    let collection = await informationDB.getCollection("DEALS");
+	collection.find({ "from.username": params.id }).toArray(function (err, sendData) {
+        collection.find({ "to.id": params.id }).toArray(function (err, acceptData) {
+			res.status(200).json({
+                "sendDeals": sendData,
+                "toDeals": acceptData
+			});
+        })
+	});
 });
 
 
@@ -65,7 +86,8 @@ router.get('/administorator', urlencodedParser, async function (req, res, next) 
                         community: data.community,
                         tel: data.tel,
                         permission: data.permission,
-						scores: scoresData.scores
+                        scores: scoresData.scores,
+                        access: data.access
 					});
 				}
 			});
@@ -87,12 +109,15 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
     }
     console.log(aDeal)
 
-    let collection = await informationDB.getCollection("SCORES");
-    let adminCollection = await informationDB.getCollection("ADMINSCORES");
+    let collection = await informationDB.getCollection("ACCOUNT");
+    let scoresCollection = await informationDB.getCollection("SCORES");
+    let adminScoreCollection = await informationDB.getCollection("ADMINSCORES");
+    let adminCollection = await informationDB.getCollection("ADMINISTORATOR");
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
+    let dealsCollection = await informationDB.getCollection("DEALS");
 
 	//在发送人积分表中加入数据
-	adminCollection.findOne({ username: aDeal.sender }, function (err, data) {
+	adminScoreCollection.findOne({ username: aDeal.sender }, function (err, data) {
 		if (!data) {
 			res.status(400).json({ "code": "-1" })
 		} else {
@@ -107,7 +132,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
 			else {
 
                 if (aDeal.senderPermission == "3") {
-                    adminCollection.save({
+                    adminScoreCollection.save({
                         _id: ObjectID(senderScores._id),
                         username: senderScores.username,
                         scores: senderScores.scores
@@ -121,7 +146,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                     }
                     else {
                         senderScores.scores = String(m_score);
-                        adminCollection.save({
+                        adminScoreCollection.save({
                             _id: ObjectID(senderScores._id),
                             username: senderScores.username,
                             scores: senderScores.scores
@@ -131,7 +156,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
 
                 //在收分人积分表中加入数据
                 if (aDeal.acceptPermission == "2") {
-                    adminCollection.findOne({ username: aDeal.to }, function (err, acceptData) {
+                    adminScoreCollection.findOne({ username: aDeal.to }, function (err, acceptData) {
                         if (!acceptData) {
                             console.log(acceptData)
                             res.status(400).json({ "code": "-1" })
@@ -144,18 +169,19 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                 
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
-                            adminCollection.save({
+                            adminScoreCollection.save({
                                 _id: ObjectID(toScores._id),
                                 username: toScores.username,
                                 scores: toScores.scores
                             });
+
                         }
                     });
         
                 }
 
                 else if (aDeal.acceptPermission == "1") {
-                    collection.findOne({ id: aDeal.to }, function (err, userData) {
+                    scoresCollection.findOne({ id: aDeal.to }, function (err, userData) {
                         if (!userData) {
                             res.status(400).json({ "code": "-1" })
                         } else {
@@ -166,7 +192,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                             }
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
-                            collection.save({
+                            scoresCollection.save({
                                 _id: ObjectID(toScores._id),
                                 id: toScores.id,
                                 scores: toScores.scores
@@ -174,7 +200,55 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                         }
                     });
                 }
-                res.status(200).json({ "code": "1" })
+
+
+                adminCollection.findOne({ username: aDeal.sender }, function (err, senderData) {
+                    if (aDeal.acceptPermission == "2") {
+                        adminCollection.findOne({ username: aDeal.to }, function (err, toData) {
+                            dealsCollection.insertOne({
+                                score: aDeal.score,
+                                from: {
+                                    username: senderData.username,
+                                    name: senderData.name,
+                                    community: senderData.community,
+                                    tel: senderData.tel
+                                },
+                                to: {
+                                    id: aDeal.to,
+                                    name: toData.username,
+                                    community: toData.community,
+                                    tel: toData.tel
+                                }
+            
+                            }, function () {
+                                res.status(200).json({ "code": "1" });
+                            })
+                        });
+                    }
+                    else if (aDeal.acceptPermission == "1") {
+                        collection.findOne({ id: aDeal.to }, function (err, toData) {
+                            dealsCollection.insertOne({
+                                score: aDeal.score,
+                                from: {
+                                    username: senderData.username,
+                                    name: senderData.username,
+                                    community: senderData.community,
+                                    tel: senderData.tel
+                                },
+                                to: {
+                                    id: aDeal.to,
+                                    name: toData.name,
+                                    community: toData.college,
+                                    tel: toData.tel
+                                }
+            
+                            }, function () {
+                                res.status(200).json({ "code": "1" });
+                            })
+                        });
+                    }
+
+                })
 			}
 		}
 	});
@@ -190,7 +264,8 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
         password: req.body.password,
         community: req.body.community,
         tel: req.body.tel,
-        permission: req.body.permission
+        permission: req.body.permission,
+        access: 0
 	}
 
     //开始初始化数据库
@@ -206,7 +281,8 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 password: UsearData.password,
                 community: UsearData.community,
                 tel: UsearData.tel,
-                permission: UsearData.permission
+                permission: UsearData.permission,
+                access: UsearData.access
 			}, function () {
 					//初始化积分表
                 scoresCollection.findOne({ username: UsearData.username }, function (err, data) {
@@ -232,6 +308,66 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
 
 
 });
+
+
+// 管理员认证
+router.post('/user/register', urlencodedParser, async function (req, res, next) {
+
+    let username = req.body.id;
+    let access = req.body.access;
+
+    let collection = await informationDB.getCollection("ADMINISTORATOR");
+    collection.findOne({ username: username }, function (err, data) {
+        if (!data) {
+            res.status(400).json({ "code": "-1" })
+        } else {
+
+            collection.save({
+                _id: ObjectID(data._id),
+                username: data.username,
+                name: data.name,
+                password: data.password,
+                community: data.community,
+                tel: data.tel,
+                permission: data.permission,
+                access: access
+            },function () {
+                res.status(200).json({ "code": "1" })
+            });
+        }
+    });
+
+});
+
+// 用户认证
+router.post('/admin/register', urlencodedParser, async function (req, res, next) {
+
+    let Id = req.body.id;
+    let access = req.body.access;
+
+    let collection = await informationDB.getCollection("ACCOUNT");
+    collection.findOne({ id: Id }, function (err, data) {
+        if (!data) {
+            res.status(400).json({ "code": "-1" })
+        } else {
+            collection.save({
+                _id: ObjectID(data._id),
+				id: data.id,
+				nickName: data.nickName,
+				name: data.name,
+				gender: data.gender,
+				headimg: data.headimg,
+				tel: data.tel,
+				college: data.college,
+				access: data.access
+            },function () {
+                res.status(200).json({ "code": "1" })
+            });
+        }
+    });
+
+});
+
 
 // 获取所有用户信息
 router.get('/user/list', urlencodedParser, async function (req, res, next) {

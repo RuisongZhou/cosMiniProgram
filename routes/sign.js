@@ -49,12 +49,20 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
             let signNumber = parseInt(data.signNumber);
             let nowDate = new Date();
 
-            console.log(getDays(data.lastSignTime,data.lastSignTime,nowDate));
             console.log(data)
 
             if (data.lastSignTime == "") {
                 serialSignNumber += 1;
                 signNumber += 1;
+                signCollection.save({
+                    _id: data._id,
+                    id: data.id,
+                    lastSignTime: nowDate,
+                    signNumber: String(signNumber),
+                    serialSignNumber: String(serialSignNumber)
+                });
+                res.status(200).json({ "code": "1" });
+
             }
             else {
                 if (getDays(data.lastSignTime,nowDate)　>= 1) {
