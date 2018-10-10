@@ -5,6 +5,7 @@ let bodyParser = require('body-parser');
 let urlencodedParser = bodyParser.urlencoded({ extended: false });
 var ObjectID = require('mongodb').ObjectID;
 
+
 // 跨域header设定
 router.all('*', function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -80,7 +81,7 @@ router.get('/allBoards', urlencodedParser, async function (req, res, next) {
 	console.log(params);
 	let collection = await informationDB.getCollection("BOARDS");
 	if (params.describe == 'getBoards') {
-		collection.find().toArray(function (err, data) {
+		collection.find({isSystem: params.isSystem}).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"Boards": data
@@ -91,6 +92,7 @@ router.get('/allBoards', urlencodedParser, async function (req, res, next) {
 		res.status(400).json({ "code": "-1" });
 	}
 });
+
 
 
 // 获取回帖
@@ -124,7 +126,8 @@ router.post('/newBoard', urlencodedParser, async function (req, res, next) {
 	let board = {
 		name: req.body.name,
 		description: req.body.description,
-		picture: req.body.picture
+		picture: req.body.picture,
+		isSystem: req.body.isSystem
 	}
 
 	console.log(board);
@@ -135,7 +138,8 @@ router.post('/newBoard', urlencodedParser, async function (req, res, next) {
 		name: board.name,
 		description: board.description,
 		time: getDate(),
-		picture: board.picture
+		picture: board.picture,
+		isSystem: board.isSystem
 	});
 	res.status(200).json({ "code": "1" });
 
