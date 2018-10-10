@@ -56,32 +56,13 @@ router.get('/user/postblogs', urlencodedParser, async function (req, res, next) 
 });
 
 
-// 获取板块信息
+// 获取所有板块信息
 router.get('/boards', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("BOARDS");
 	if (params.describe == 'getBoards') {
-		// let page = parseInt(params.page);
-		collection.find().sort(['_id', 1]).toArray(function (err, data) {
-            console.log(data);
-			res.status(200).json({
-				"Boards": data
-			});
-        });
-	}
-	else {
-		res.status(400).json({ "code": "-1" });
-	}
-});
-
-// 获取所有板块信息
-router.get('/allBoards', urlencodedParser, async function (req, res, next) {
-	let params = req.query;
-	console.log(params);
-	let collection = await informationDB.getCollection("BOARDS");
-	if (params.describe == 'getBoards') {
-		collection.find({isSystem: params.isSystem}).toArray(function (err, data) {
+		collection.find({isSystem: params.isSystem}).sort(['_id', 1]).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"Boards": data
