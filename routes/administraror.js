@@ -403,7 +403,8 @@ router.post('/model/confirm', urlencodedParser, async function (req, res, next) 
                 price: data.price,
                 reMarks: data.reMarks,
                 orderTime: data.orderTime,
-                status: "1"
+                status: "1",
+                model: data.model
             },function () {
                 res.status(200).json({ "code": "1" })
             });

@@ -51,6 +51,33 @@ router.get('/shop/getById', urlencodedParser, async function (req, res, next) {
 	}
 });
 
+//根据账户id获取商品信息
+router.get('/user/model', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("SHOP");
+    let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
+    collection.find({ poster: params.id }).sort(['_id', 1]).toArray(function (err, data) {
+		if (data) {
+            confirmCollection.find({ "model.poster": params.id }).sort(['_id', 1]).toArray(function (err, confirmData) {
+				if (!confirmData) {
+					res.status(400).json({ "code": "-1" })
+				} else {
+					res.status(200).json({
+                        "model": data,
+                        "confirm": confirmData
+					});
+				}
+			});
+		}
+		else {
+			res.status(400).json({ "code": "-1" })
+		}
+
+	});
+});
+
+
 // 获取个人核销商品信息
 router.get('/shop/confirmlist', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
@@ -177,7 +204,8 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 		buyer: req.body.buyer,
         modelId: req.body.modelId,
         buyNumber: req.body.buyNumber,
-        reMarks: req.body.reMarks
+        reMarks: req.body.reMarks,
+        shopKind: req.body.shopKind
     }
 
     console.log(confirm);
@@ -207,6 +235,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                 orderTime: getDate(),
                 status: "0",
                 model: {
+                    poster: data.poster,
                     modelName: data.name,                                                                                      
                     content: data.content,                          
                     price: data.price,
@@ -247,7 +276,32 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     "id": buyerScores.id,
                                     "scores": buyerScores.scores
                                 }, function () {
-                                    res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                    if (confirm.shopKind == 1) {
+                                        scoresCollection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
+                                            if (!modelKeeperlData) {
+                                                res.status(400).json({ "code": "-1" })
+                                            } else {
+                                                let modelKeeperScores = {
+                                                    _id: modelKeeperlData._id,
+                                                    id: modelKeeperlData.id,
+                                                    scores: modelKeeperlData.scores
+                                                }
+                        
+                                                let m_score = parseInt(modelKeeperlData.scores) + parseInt(data.price*confirm.buyNumber);
+                                                modelKeeperScores.scores = String(m_score);
+                                                scoresCollection.save({
+                                                    "_id": ObjectID(modelKeeperScores._id),
+                                                    "id": modelKeeperScores.id,
+                                                    "scores": modelKeeperScores.scores
+                                                }, function () {
+                                                    res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                                })
+                                            }
+                                        })
+                                    }
+                                    else {
+                                        res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                    }
                                 });
                             });
                         }
