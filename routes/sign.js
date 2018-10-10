@@ -87,7 +87,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
                     res.status(200).json({ "code": "1" });
                 }
                 else {
-                    res.status(400).json({ "code": "-2" });
+                    res.status(200).json({ "code": "-2" });
                 }
             }
 

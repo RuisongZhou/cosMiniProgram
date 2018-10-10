@@ -101,7 +101,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
         poster: req.body.poster,
         price: req.body.price,
         number: req.body.number,
-        picture: req.body.picture
+        picture: req.body.picture,
+        shopKind: req.body.shopKind
     }
 
     console.log(good);
@@ -114,7 +115,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
             poster: good.poster,
             price: good.price,
             number: good.number,
-            picture: good.picture
+            picture: good.picture,
+            shopKind: good.shopKind
         }, function () {
             res.status(200).json({ "code": "1" });
         })
@@ -165,7 +167,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         poster: req.body.poster,
         price: req.body.price,
         number: req.body.number,
-        picture: req.body.picture
+        picture: req.body.picture,
+        shopKind: req.body.shopKind
     }
 
     if (good.describe == 'ChangeGood') {
@@ -185,7 +188,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
                         poster: good.poster,
                         price: good.price,
                         number: req.body.number,
-                        picture: good.picture
+                        picture: good.picture,
+                        shopKind: good.shopKind
                     },function () {
                         res.status(200).json({ "code": "1" })
                     });
@@ -204,8 +208,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 		buyer: req.body.buyer,
         modelId: req.body.modelId,
         buyNumber: req.body.buyNumber,
-        reMarks: req.body.reMarks,
-        shopKind: req.body.shopKind
+        reMarks: req.body.reMarks
     }
 
     console.log(confirm);
@@ -268,7 +271,9 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                 content: data.content,
                                 poster: data.poster,
                                 price: data.price,
-                                number: String(parseInt(data.number)-parseInt(confirm.buyNumber))
+                                number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
+                                picture: data.picture,
+                                shopKind: data.shopKind
                             },function () {
                                 buyerScores.scores = String(m_score);
                                 scoresCollection.save({
@@ -276,7 +281,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     "id": buyerScores.id,
                                     "scores": buyerScores.scores
                                 }, function () {
-                                    if (confirm.shopKind == 1) {
+                                    if (data.shopKind == 1) {
                                         scoresCollection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
                                             if (!modelKeeperlData) {
                                                 res.status(400).json({ "code": "-1" })
