@@ -102,7 +102,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
         price: req.body.price,
         number: req.body.number,
         picture: req.body.picture,
-        shopKind: req.body.shopKind
+        shopKind: req.body.shopKind,
+        nickName: req.body.nickName
     }
 
     console.log(good);
@@ -116,7 +117,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
             price: good.price,
             number: good.number,
             picture: good.picture,
-            shopKind: good.shopKind
+            shopKind: good.shopKind,
+            nickName: good.nickName
         }, function () {
             res.status(200).json({ "code": "1" });
         })
@@ -168,7 +170,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         price: req.body.price,
         number: req.body.number,
         picture: req.body.picture,
-        shopKind: req.body.shopKind
+        shopKind: req.body.shopKind,
+        nickName: req.body.nickName
     }
 
     if (good.describe == 'ChangeGood') {
@@ -189,7 +192,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
                         price: good.price,
                         number: req.body.number,
                         picture: good.picture,
-                        shopKind: good.shopKind
+                        shopKind: good.shopKind,
+                        nickName: good.nickName
                     },function () {
                         res.status(200).json({ "code": "1" })
                     });
@@ -279,7 +283,8 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     price: data.price,
                                     number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
                                     picture: data.picture,
-                                    shopKind: data.shopKind
+                                    shopKind: data.shopKind,
+                                    nickName: data.nickName
                                 },function () {
                                     buyerScores.scores = String(m_score);
                                     scoresCollection.save({
