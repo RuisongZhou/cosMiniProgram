@@ -23,7 +23,7 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("POSTBLOGS");
 	if (params.describe == 'getPostBlogs') {
 		// let page = parseInt(params.page);
-		collection.find({board: params.board}).sort(['_id', 1]).toArray(function (err, data) {
+		collection.find({board: params.board}).sort(['_id', -1]).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"PostBlogs": data
