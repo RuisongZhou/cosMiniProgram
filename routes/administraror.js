@@ -11,13 +11,14 @@ router.all('*', function(req, res, next) {
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
 	res.header("X-Powered-By",' 3.2.1')
-	res.header("Content-Type", "application/json;charset=utf-8");
-	next();
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
 });
 
 
 //登录
 router.post('/login', urlencodedParser, async function (req, res, next) {
+    // console.log(req.body)
     let user = {
 		username: req.body.username,
         password: req.body.password
@@ -52,7 +53,7 @@ router.post('/login', urlencodedParser, async function (req, res, next) {
 
 
 //根据username获取流水
-router.get('/user/deals', urlencodedParser, async function (req, res, next) {
+router.get('/admin/deals', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
     let collection = await informationDB.getCollection("DEALS");
 	collection.find({ "from.username": params.id }).toArray(function (err, sendData) {
@@ -60,6 +61,20 @@ router.get('/user/deals', urlencodedParser, async function (req, res, next) {
 			res.status(200).json({
                 "sendDeals": sendData,
                 "toDeals": acceptData
+			});
+        })
+	});
+});
+
+//根据id获取用户流水
+router.get('/user/deals', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+    let collection = await informationDB.getCollection("CONFIRMLIST");
+	collection.find({ "model.poster": params.id }).toArray(function (err, getData) {
+        collection.find({buyer: params.id}).toArray(function (err, buyData) {
+			res.status(200).json({
+                "getDeals": getData,
+                "buyDeals": buyData
 			});
         })
 	});
@@ -218,7 +233,8 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                     name: toData.username,
                                     community: toData.community,
                                     tel: toData.tel
-                                }
+                                },
+                                time: getDate()
             
                             }, function () {
                                 res.status(200).json({ "code": "1" });
@@ -311,9 +327,9 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
 
 
 // 管理员认证
-router.post('/user/register', urlencodedParser, async function (req, res, next) {
+router.post('/admin/register', urlencodedParser, async function (req, res, next) {
 
-    let username = req.body.id;
+    let username = req.body.username;
     let access = req.body.access;
 
     let collection = await informationDB.getCollection("ADMINISTORATOR");
@@ -330,7 +346,7 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
                 community: data.community,
                 tel: data.tel,
                 permission: data.permission,
-                access: access
+                access: parseInt(access)
             },function () {
                 res.status(200).json({ "code": "1" })
             });
@@ -340,7 +356,7 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
 });
 
 // 用户认证
-router.post('/admin/register', urlencodedParser, async function (req, res, next) {
+router.post('/user/register', urlencodedParser, async function (req, res, next) {
 
     let Id = req.body.id;
     let access = req.body.access;
@@ -359,7 +375,7 @@ router.post('/admin/register', urlencodedParser, async function (req, res, next)
 				headimg: data.headimg,
 				tel: data.tel,
 				college: data.college,
-				access: data.access
+				access: parseInt(access)
             },function () {
                 res.status(200).json({ "code": "1" })
             });
@@ -375,19 +391,33 @@ router.get('/user/list', urlencodedParser, async function (req, res, next) {
 	console.log(params);
 	let collection = await informationDB.getCollection("ACCOUNT");
     let page = parseInt(params.page);
-    collection.find({college: params.community}).sort(['_id', 1]).skip(page*20).limit(20).toArray(function (err, data) {
-        console.log(data);
-        collection.find({college: params.community}).toArray(function (err, allData) {
+    if (params.community == '') {
+        collection.find({access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
             res.status(200).json({
-                "total": allData.length,
-                "user": data
+                "UsersInformation": userdata
             });
-        })
-    });
+        });
+    }
+    else {
+        if (params.name == '') {
+            collection.find({college: params.community, access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
+                res.status(200).json({
+                    "UsersInformation": userdata
+                });
+            });
+        }
+        else {
+            collection.find({college: params.community, name: params.name, access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
+                res.status(200).json({
+                    "UsersInformation": userdata
+                });
+            });
+        }
+    }
 });
 
 // 获取管理员列表
-router.get('/user/getRegisterAdminList', urlencodedParser, async function (req, res, next) {
+router.get('/admin/list', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
     console.log(params);
 
@@ -397,11 +427,20 @@ router.get('/user/getRegisterAdminList', urlencodedParser, async function (req, 
         if (data) {
             console.log(data)
             if (data.permission == '3') {
-                collection.find({permission: '2'}).sort(['_id', 1]).toArray(function (err, userdata) {
-                    res.status(200).json({
-                        "UsersInformation": userdata
+                if (params.name == '') {
+                    collection.find({permission: '2',access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
+                        res.status(200).json({
+                            "UsersInformation": userdata
+                        });
                     });
-                });
+                }
+                else {
+                    collection.find({permission: '2', name: params.name,access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
+                        res.status(200).json({
+                            "UsersInformation": userdata
+                        });
+                    });
+                }
             }
             else {
                 res.status(200).json({
@@ -417,7 +456,7 @@ router.get('/user/getRegisterAdminList', urlencodedParser, async function (req, 
 });
 
 // 删除用户 
-router.delete('/user/remove', urlencodedParser, async function (req, res, next) {
+router.delete('/admin/remove', urlencodedParser, async function (req, res, next) {
     let username  =  req.body.username;
 
     console.log(req.body);
