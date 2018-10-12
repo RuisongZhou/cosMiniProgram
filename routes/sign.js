@@ -3,6 +3,8 @@ let informationDB = require('../models/information_db');
 let router = express.Router();
 let bodyParser = require('body-parser');
 let urlencodedParser = bodyParser.urlencoded({ extended: false });
+var ObjectID = require('mongodb').ObjectID;
+
 
 // 跨域header设定
 router.all('*', function(req, res, next) {
@@ -43,37 +45,21 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
     //将数据插入签到表
     if (SIGN.describe == "sign") {
         let signCollection = await informationDB.getCollection("SIGN");
-        let scoreCollection = await informationDB.getCollection("SCORES");
+        let collection = await informationDB.getCollection("ACCOUNT");
         signCollection.findOne({ id: SIGN.id }, function (err, data) {
-            let serialSignNumber = parseInt(data.serialSignNumber);
-            let signNumber = parseInt(data.signNumber);
-            let nowDate = new Date();
-
-            console.log(data)
-
-            if (data.lastSignTime == "") {
-                serialSignNumber += 1;
-                signNumber += 1;
-                signCollection.save({
-                    _id: data._id,
-                    id: data.id,
-                    lastSignTime: nowDate,
-                    signNumber: String(signNumber),
-                    serialSignNumber: String(serialSignNumber)
-                });
-                res.status(200).json({ "code": "1" });
-
+            if (!data) {
+                res.status(200).json({ "msg": "用户不存在" });
             }
             else {
-                if (getDays(data.lastSignTime,nowDate)　>= 1) {
-                    if (getDays(data.lastSignTime,nowDate) == 1) {
-                        serialSignNumber += 1;
-                        signNumber += 1;
-                    }
-                    else {
-                        serialSignNumber = 0;
-                        signNumber += 1;
-                    }
+                let serialSignNumber = parseInt(data.serialSignNumber);
+                let signNumber = parseInt(data.signNumber);
+                let nowDate = new Date();
+    
+                console.log(data)
+    
+                if (data.lastSignTime == "") {
+                    serialSignNumber += 1;
+                    signNumber += 1;
                     signCollection.save({
                         _id: data._id,
                         id: data.id,
@@ -81,21 +67,49 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
                         signNumber: String(signNumber),
                         serialSignNumber: String(serialSignNumber)
                     });
-        
-                    //签到加分
-                    if (serialSignNumber >=2) {
-                        scoreCollection.findOne({ id: SIGN.id }, function (err, data) {
-                            scoreCollection.save({
-                                "_id": data._id,
-                                "id": data.id,
-                                "scores": String(parseInt(data.scores)+1)
-                            });
-                        });
-                    }
                     res.status(200).json({ "code": "1" });
+    
                 }
                 else {
-                    res.status(200).json({ "code": "-2" });
+                    if (getDays(data.lastSignTime,nowDate)　>= 1) {
+                        if (getDays(data.lastSignTime,nowDate) == 1) {
+                            serialSignNumber += 1;
+                            signNumber += 1;
+                        }
+                        else {
+                            serialSignNumber = 0;
+                            signNumber += 1;
+                        }
+                        signCollection.save({
+                            _id: data._id,
+                            id: data.id,
+                            lastSignTime: nowDate,
+                            signNumber: String(signNumber),
+                            serialSignNumber: String(serialSignNumber)
+                        });
+            
+                        //签到加分
+                        if (serialSignNumber >=2) {
+                            collection.findOne({ id: SIGN.id }, function (err, data) {
+                                collection.save({
+                                    _id: ObjectID(data._id),
+                                    id: data.id,
+                                    nickName: data.nickName,
+                                    name: data.name,
+                                    gender: data.gender,
+                                    access: data.access,
+                                    headimg: data.headimg,
+                                    tel: data.tel,
+                                    college: data.college,
+                                    scores: String(parseInt(data.scores)+1)
+                                });
+                            });
+                        }
+                        res.status(200).json({ "code": "1" });
+                    }
+                    else {
+                        res.status(200).json({ "code": "-2" });
+                    }
                 }
             }
 

@@ -228,105 +228,258 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 
     let shopCollection = await informationDB.getCollection("SHOP");
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
-    let scoresCollection = await informationDB.getCollection("SCORES");
     let collection = await informationDB.getCollection("ACCOUNT");
+    let adminCollection = await informationDB.getCollection("ADMINISTORATOR")
 
     shopCollection.findOne({ _id: ObjectID(confirm.modelId) }, function (err, data) {
 		if (!data) {
 			res.status(400).json({ "code": "-1" })
 		} else {
-            collection.findOne({ id: data.poster }, function (err, posterData) {
-                console.log(posterData)
-                confirmCollection.insertOne({
-                    orderNumber: orderNumber,
-                    buyer: confirm.buyer,
-                    buyerName: confirm.buyerName, 
-                    modelId: confirm.modelId,
-                    buyNumber: confirm.buyNumber,
-                    reMarks: confirm.reMarks,
-                    orderTime: getDate(),
-                    status: "0",
-                    model: {
-                        posterName:posterData.name,
-                        poster: data.poster,
-                        modelName: data.name,                                                                                      
-                        content: data.content,                          
-                        price: data.price,
-                        picture: data.picture
-                    }
-                }, function () {
-                    console.log(data)
-                    scoresCollection.findOne({ id: confirm.buyer }, function (err, scoreslData) {
-                        if (!scoreslData) {
-                            res.status(400).json({ "code": "-1" })
-                        } else {
-                            let buyerScores = {
-                                _id: scoreslData._id,
-                                id: scoreslData.id,
-                                scores: scoreslData.scores
-                            }
-    
-                            let m_score = parseInt(buyerScores.scores) - parseInt(data.price*confirm.buyNumber);
-                            console.log(data.number,confirm.buyNumber)
-                            if (m_score < 0) {
-                                res.status(200).json({ "msg": "买不起" })
-                            }
-                            else if (parseInt(data.number) < parseInt(confirm.buyNumber)) {
-                                res.status(200).json({ "msg": "没这么多" })
-                            }
-                            else {
-                                shopCollection.save({
-                                    _id: ObjectID(data._id),
-                                    name: data.name,
-                                    content: data.content,
-                                    poster: data.poster,
-                                    price: data.price,
-                                    number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
-                                    picture: data.picture,
-                                    shopKind: data.shopKind,
-                                    nickName: data.nickName
-                                },function () {
-                                    buyerScores.scores = String(m_score);
-                                    scoresCollection.save({
-                                        "_id": ObjectID(buyerScores._id),
-                                        "id": buyerScores.id,
-                                        "scores": buyerScores.scores
-                                    }, function () {
-                                        if (data.shopKind == 1) {
-                                            scoresCollection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
-                                                if (!modelKeeperlData) {
-                                                    res.status(400).json({ "code": "-1" })
-                                                } else {
-                                                    let modelKeeperScores = {
-                                                        _id: modelKeeperlData._id,
-                                                        id: modelKeeperlData.id,
-                                                        scores: modelKeeperlData.scores
-                                                    }
-                            
-                                                    let m_score = parseInt(modelKeeperlData.scores) + parseInt(data.price*confirm.buyNumber);
-                                                    modelKeeperScores.scores = String(m_score);
-                                                    scoresCollection.save({
-                                                        "_id": ObjectID(modelKeeperScores._id),
-                                                        "id": modelKeeperScores.id,
-                                                        "scores": modelKeeperScores.scores
-                                                    }, function () {
-                                                        res.status(200).json({ "code": "1", "orderNumber": orderNumber })
-                                                    })
-                                                }
-                                            })
-                                        }
-                                        else {
-                                            res.status(200).json({ "code": "1", "orderNumber": orderNumber })
-                                        }
-                                    });
-                                });
-                            }
-    
+            console.log(data)
+            if (data.shopKind == "0") {
+                adminCollection.findOne({ username: data.poster }, function (err, posterData) {
+                    console.log(posterData)
+                    confirmCollection.insertOne({
+                        orderNumber: orderNumber,
+                        buyer: confirm.buyer,
+                        buyerName: confirm.buyerName, 
+                        modelId: confirm.modelId,
+                        buyNumber: confirm.buyNumber,
+                        reMarks: confirm.reMarks,
+                        orderTime: getDate(),
+                        status: "0",
+                        model: {
+                            posterName:posterData.name,
+                            poster: data.poster,
+                            modelName: data.name,                                                                                      
+                            content: data.content,                          
+                            price: data.price,
+                            picture: data.picture
                         }
-                    });
-    
+                    }, function () {
+                        // console.log(data)
+                        collection.findOne({ id: confirm.buyer }, function (err, buyerdata) {
+                            if (!data) {
+                                res.status(400).json({ "code": "-1" })
+                            } else {
+                                let buyer = {
+                                    _id: buyerdata._id,
+                                    id: buyerdata.id,
+                                    nickName: buyerdata.nickName,
+                                    name: buyerdata.name,
+                                    gender: buyerdata.gender,
+                                    access: buyerdata.access,
+                                    headimg: buyerdata.headimg,
+                                    tel: buyerdata.tel,
+                                    college: buyerdata.college,
+                                    scores: buyerdata.scores
+                                }
+        
+                                let m_score = parseInt(buyer.scores) - parseInt(data.price*confirm.buyNumber);
+                                console.log(data.number,confirm.buyNumber)
+                                if (m_score < 0) {
+                                    res.status(200).json({ "msg": "买不起" })
+                                }
+                                else if (parseInt(data.number) < parseInt(confirm.buyNumber)) {
+                                    res.status(200).json({ "msg": "没这么多" })
+                                }
+                                else {
+                                    shopCollection.save({
+                                        _id: ObjectID(data._id),
+                                        name: data.name,
+                                        content: data.content,
+                                        poster: data.poster,
+                                        price: data.price,
+                                        number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
+                                        picture: data.picture,
+                                        shopKind: data.shopKind,
+                                        nickName: data.nickName
+                                    },function () {
+                                        buyer.scores = String(m_score);
+                                        collection.save({
+                                            _id: ObjectID(buyer._id),
+                                            id: buyer.id,
+                                            nickName: buyer.nickName,
+                                            name: buyer.name,
+                                            gender: buyer.gender,
+                                            access: buyer.access,
+                                            headimg: buyer.headimg,
+                                            tel: buyer.tel,
+                                            college: buyer.college,
+                                            scores: buyer.scores
+                                        }, function () {
+                                            if (data.shopKind == 1) {
+                                                collection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
+                                                    if (!modelKeeperlData) {
+                                                        res.status(400).json({ "code": "-1" })
+                                                    } else {
+                                                        let modelKeeper = {
+                                                            _id: modelKeeperlData._id,
+                                                            id: modelKeeperlData.id,
+                                                            nickName: modelKeeperlData.nickName,
+                                                            name: modelKeeperlData.name,
+                                                            gender: buyerdata.gender,
+                                                            access: modelKeeperlData.access,
+                                                            headimg: modelKeeperlData.headimg,
+                                                            tel: modelKeeperlData.tel,
+                                                            college: modelKeeperlData.college,
+                                                            scores: modelKeeperlData.scores
+                                                        }
+                                
+                                                        let m_score = parseInt(modelKeeper.scores) + parseInt(data.price*confirm.buyNumber);
+                                                        modelKeeper.scores = String(m_score);
+                                                        collection.save({
+                                                            _id: ObjectID(modelKeeperlData._id),
+                                                            id: modelKeeperlData.id,
+                                                            nickName: modelKeeperlData.nickName,
+                                                            name: modelKeeperlData.name,
+                                                            gender: buyerdata.gender,
+                                                            access: modelKeeperlData.access,
+                                                            headimg: modelKeeperlData.headimg,
+                                                            tel: modelKeeperlData.tel,
+                                                            college: modelKeeperlData.college,
+                                                            scores: modelKeeperlData.scores
+                                                        }, function () {
+                                                            res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                                        })
+                                                    }
+                                                })
+                                            }
+                                            else {
+                                                res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                            }
+                                        });
+                                    });
+                                }
+        
+                            }
+                        });
+        
+                    })
                 })
-            })
+            }
+            else {
+                collection.findOne({ id: data.poster }, function (err, posterData) {
+                    console.log(posterData)
+                    confirmCollection.insertOne({
+                        orderNumber: orderNumber,
+                        buyer: confirm.buyer,
+                        buyerName: confirm.buyerName, 
+                        modelId: confirm.modelId,
+                        buyNumber: confirm.buyNumber,
+                        reMarks: confirm.reMarks,
+                        orderTime: getDate(),
+                        status: "0",
+                        model: {
+                            posterName:posterData.name,
+                            poster: data.poster,
+                            modelName: data.name,                                                                                      
+                            content: data.content,                          
+                            price: data.price,
+                            picture: data.picture
+                        }
+                    }, function () {
+                        // console.log(data)
+                        collection.findOne({ id: confirm.buyer }, function (err, buyerdata) {
+                            if (!data) {
+                                res.status(400).json({ "code": "-1" })
+                            } else {
+                                let buyer = {
+                                    _id: buyerdata._id,
+                                    id: buyerdata.id,
+                                    nickName: buyerdata.nickName,
+                                    name: buyerdata.name,
+                                    gender: buyerdata.gender,
+                                    access: buyerdata.access,
+                                    headimg: buyerdata.headimg,
+                                    tel: buyerdata.tel,
+                                    college: buyerdata.college,
+                                    scores: buyerdata.scores
+                                }
+        
+                                let m_score = parseInt(buyer.scores) - parseInt(data.price*confirm.buyNumber);
+                                console.log(data.number,confirm.buyNumber)
+                                if (m_score < 0) {
+                                    res.status(200).json({ "msg": "买不起" })
+                                }
+                                else if (parseInt(data.number) < parseInt(confirm.buyNumber)) {
+                                    res.status(200).json({ "msg": "没这么多" })
+                                }
+                                else {
+                                    shopCollection.save({
+                                        _id: ObjectID(data._id),
+                                        name: data.name,
+                                        content: data.content,
+                                        poster: data.poster,
+                                        price: data.price,
+                                        number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
+                                        picture: data.picture,
+                                        shopKind: data.shopKind,
+                                        nickName: data.nickName
+                                    },function () {
+                                        buyer.scores = String(m_score);
+                                        collection.save({
+                                            _id: ObjectID(buyer._id),
+                                            id: buyer.id,
+                                            nickName: buyer.nickName,
+                                            name: buyer.name,
+                                            gender: buyer.gender,
+                                            access: buyer.access,
+                                            headimg: buyer.headimg,
+                                            tel: buyer.tel,
+                                            college: buyer.college,
+                                            scores: buyer.scores
+                                        }, function () {
+                                            if (data.shopKind == 1) {
+                                                collection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
+                                                    if (!modelKeeperlData) {
+                                                        res.status(400).json({ "code": "-1" })
+                                                    } else {
+                                                        let modelKeeper = {
+                                                            _id: modelKeeperlData._id,
+                                                            id: modelKeeperlData.id,
+                                                            nickName: modelKeeperlData.nickName,
+                                                            name: modelKeeperlData.name,
+                                                            gender: buyerdata.gender,
+                                                            access: modelKeeperlData.access,
+                                                            headimg: modelKeeperlData.headimg,
+                                                            tel: modelKeeperlData.tel,
+                                                            college: modelKeeperlData.college,
+                                                            scores: modelKeeperlData.scores
+                                                        }
+                                
+                                                        let m_score = parseInt(modelKeeper.scores) + parseInt(data.price*confirm.buyNumber);
+                                                        modelKeeper.scores = String(m_score);
+                                                        collection.save({
+                                                            _id: ObjectID(modelKeeperlData._id),
+                                                            id: modelKeeperlData.id,
+                                                            nickName: modelKeeperlData.nickName,
+                                                            name: modelKeeperlData.name,
+                                                            gender: buyerdata.gender,
+                                                            access: modelKeeperlData.access,
+                                                            headimg: modelKeeperlData.headimg,
+                                                            tel: modelKeeperlData.tel,
+                                                            college: modelKeeperlData.college,
+                                                            scores: modelKeeperlData.scores
+                                                        }, function () {
+                                                            res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                                        })
+                                                    }
+                                                })
+                                            }
+                                            else {
+                                                res.status(200).json({ "code": "1", "orderNumber": orderNumber })
+                                            }
+                                        });
+                                    });
+                                }
+        
+                            }
+                        });
+        
+                    })
+                })
+            }
 		}
 	});
 

@@ -86,26 +86,19 @@ router.get('/administorator', urlencodedParser, async function (req, res, next) 
 	let params = req.query;
 	console.log(params);
     let collection = await informationDB.getCollection("ADMINISTORATOR");
-    let scoresCollection = await informationDB.getCollection("ADMINSCORES");
 	collection.findOne({ username: params.username }, function (err, data) {
 		if (data) {
-			scoresCollection.findOne({ username: params.username }, function (err, scoresData) {
-				if (!scoresData) {
-					res.status(400).json({ "code": "-1" })
-				} else {
-					res.status(200).json({
-                        _id: data._id,
-                        username: data.username,
-                        name: data.name,
-                        password: data.password,
-                        community: data.community,
-                        tel: data.tel,
-                        permission: data.permission,
-                        scores: scoresData.scores,
-                        access: data.access
-					});
-				}
-			});
+            res.status(200).json({
+                _id: data._id,
+                username: data.username,
+                name: data.name,
+                password: data.password,
+                community: data.community,
+                tel: data.tel,
+                permission: data.permission,
+                scores: data.scores,
+                access: data.access
+            });
 		}
 		else {
 			res.status(400).json({ "code": "-1" })
@@ -125,21 +118,25 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
     console.log(aDeal)
 
     let collection = await informationDB.getCollection("ACCOUNT");
-    let scoresCollection = await informationDB.getCollection("SCORES");
-    let adminScoreCollection = await informationDB.getCollection("ADMINSCORES");
     let adminCollection = await informationDB.getCollection("ADMINISTORATOR");
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
     let dealsCollection = await informationDB.getCollection("DEALS");
 
 	//在发送人积分表中加入数据
-	adminScoreCollection.findOne({ username: aDeal.sender }, function (err, data) {
+	adminCollection.findOne({ username: aDeal.sender }, function (err, data) {
 		if (!data) {
 			res.status(400).json({ "code": "-1" })
 		} else {
 			let senderScores = {
-				_id: data._id,
-				username: data.username,
-				scores: data.scores
+                _id: data._id,
+                username: data.username,
+                name: data.name,
+                password: data.password,
+                community: data.community,
+                tel: data.tel,
+                permission: data.permission,
+                scores: data.scores,
+                access: data.access
 			}
 			if (aDeal.score < 0) {
 				res.status(200).json({ "code": "-2" })
@@ -147,10 +144,16 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
 			else {
 
                 if (aDeal.senderPermission == "3") {
-                    adminScoreCollection.save({
+                    adminCollection.save({
                         _id: ObjectID(senderScores._id),
                         username: senderScores.username,
-                        scores: senderScores.scores
+                        name: senderScores.name,
+                        password: senderScores.password,
+                        community: senderScores.community,
+                        tel: senderScores.tel,
+                        permission: senderScores.permission,
+                        scores: senderScores.scores,
+                        access: senderScores.access
                     });
                 }
                 else if (aDeal.senderPermission == "2") {
@@ -161,33 +164,51 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                     }
                     else {
                         senderScores.scores = String(m_score);
-                        adminScoreCollection.save({
+                        adminCollection.save({
                             _id: ObjectID(senderScores._id),
                             username: senderScores.username,
-                            scores: senderScores.scores
+                            name: senderScores.name,
+                            password: senderScores.password,
+                            community: senderScores.community,
+                            tel: senderScores.tel,
+                            permission: senderScores.permission,
+                            scores: senderScores.scores,
+                            access: senderScores.access
                         });
                     }
                 }
 
                 //在收分人积分表中加入数据
                 if (aDeal.acceptPermission == "2") {
-                    adminScoreCollection.findOne({ username: aDeal.to }, function (err, acceptData) {
+                    adminCollection.findOne({ username: aDeal.to }, function (err, acceptData) {
                         if (!acceptData) {
                             console.log(acceptData)
                             res.status(400).json({ "code": "-1" })
                         } else {
                             let toScores = {
-                                _id: acceptData._id,
-                                username: acceptData.username,
-                                scores: acceptData.scores
+                                _id: data._id,
+                                username: data.username,
+                                name: data.name,
+                                password: data.password,
+                                community: data.community,
+                                tel: data.tel,
+                                permission: data.permission,
+                                scores: data.scores,
+                                access: data.access
                             }
                 
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
                             adminScoreCollection.save({
-                                _id: ObjectID(toScores._id),
+                                _id: ObjectID(data._id),
                                 username: toScores.username,
-                                scores: toScores.scores
+                                name: toScores.name,
+                                password: toScores.password,
+                                community: toScores.community,
+                                tel: toScores.tel,
+                                permission: toScores.permission,
+                                scores: toScores.scores,
+                                access: toScores.access
                             });
 
                         }
@@ -196,20 +217,34 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                 }
 
                 else if (aDeal.acceptPermission == "1") {
-                    scoresCollection.findOne({ id: aDeal.to }, function (err, userData) {
+                    collection.findOne({ id: aDeal.to }, function (err, userData) {
                         if (!userData) {
                             res.status(400).json({ "code": "-1" })
                         } else {
                             let toScores = {
                                 _id: userData._id,
                                 id: userData.id,
+                                nickName: userData.nickName,
+                                name: userData.name,
+                                gender: userData.gender,
+                                access: userData.access,
+                                headimg: userData.headimg,
+                                tel: userData.tel,
+                                college: userData.college,
                                 scores: userData.scores
                             }
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
-                            scoresCollection.save({
-                                _id: ObjectID(toScores._id),
+                            collection.save({
+                                _id: toScores._id,
                                 id: toScores.id,
+                                nickName: toScores.nickName,
+                                name: toScores.name,
+                                gender: toScores.gender,
+                                access: toScores.access,
+                                headimg: toScores.headimg,
+                                tel: toScores.tel,
+                                college: toScores.college,
                                 scores: toScores.scores
                             });
                         }
@@ -287,7 +322,6 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
     //开始初始化数据库
     console.log(UsearData)
     let collection = await informationDB.getCollection("ADMINISTORATOR");
-    let scoresCollection = await informationDB.getCollection("ADMINSCORES");
 
 	collection.findOne({ username: UsearData.username }, function (err, data) {
 		if (!data) {
@@ -300,20 +334,7 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 permission: UsearData.permission,
                 access: UsearData.access
 			}, function () {
-					//初始化积分表
-                scoresCollection.findOne({ username: UsearData.username }, function (err, data) {
-                    if (!data) {
-                        scoresCollection.insertOne({
-                            username: UsearData.username,
-                            scores: "0"
-                        }, function () {
-                            res.status(200).json({ "code": "200" });
-                        })
-                    }
-                    else {
-                        res.status(200).json({ "code": "500" });
-                    }
-                });
+                res.status(200).json({ "code": "200" });
 			})
 		}
 		else {
@@ -346,7 +367,8 @@ router.post('/admin/register', urlencodedParser, async function (req, res, next)
                 community: data.community,
                 tel: data.tel,
                 permission: data.permission,
-                access: parseInt(access)
+                access: parseInt(access),
+                scores: data.scores
             },function () {
                 res.status(200).json({ "code": "1" })
             });
@@ -375,7 +397,8 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
 				headimg: data.headimg,
 				tel: data.tel,
 				college: data.college,
-				access: parseInt(access)
+                access: parseInt(access),
+                scores: data.scores
             },function () {
                 res.status(200).json({ "code": "1" })
             });
@@ -389,10 +412,22 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
 router.get('/user/list', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("ACCOUNT");
+    let collection = await informationDB.getCollection("ACCOUNT");
+    let alldata = [];
     let page = parseInt(params.page);
     if (params.community == '') {
         collection.find({access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
+            // scoreCollection.find().sort(['_id', 1]).toArray(function (err, scoredata) {
+            //     for (var i = 0; i<userdata.length;++i ) {
+            //         var user = userdata[i].id;
+            //         scoredata.filter((scoreuser) => {
+            //             if(scoreuser.id == user){
+            //                 userdata[i].scores = scoreuser.scores;
+            //             }
+            //         })
+                    
+            //     };
+            // })
             res.status(200).json({
                 "UsersInformation": userdata
             });
@@ -455,7 +490,7 @@ router.get('/admin/list', urlencodedParser, async function (req, res, next) {
 
 });
 
-// 删除用户 
+// 删除管理员
 router.delete('/admin/remove', urlencodedParser, async function (req, res, next) {
     let username  =  req.body.username;
 
@@ -468,6 +503,25 @@ router.delete('/admin/remove', urlencodedParser, async function (req, res, next)
         } else {
             collection.remove({username: username},function () {
                 res.status(200).json({ "msg": "delete success" });
+                });
+        }
+    });
+
+});
+
+// 删除用户 
+router.delete('/user/remove', urlencodedParser, async function (req, res, next) {
+    let Id  =  req.body.id;
+
+    console.log(req.body);
+
+    let collection = await informationDB.getCollection("ACCOUNT");
+    collection.findOne({ id: Id }, function (err, data) {
+        if (!data) {
+            res.status(400).json({"code":"0", "description": "not found" })
+        } else {
+            collection.remove({id: Id},function () {
+                res.status(200).json({ "code":"1" , "description": "delete success" });
                 });
         }
     });
@@ -494,15 +548,27 @@ router.get('/model/listpage', urlencodedParser, async function (req, res, next) 
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("SHOP");
-    let page = parseInt(params.page);
-    collection.find().sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
-        collection.find().toArray(function (err, allData) {
-            res.status(200).json({
-                "total": allData.length,
-                "models": data
-            });
-        })
-    });
+    let page = parseInt(params.page) - 1;
+
+    collection.find({shopKind: params.shopKind}).toArray(function (err, allData) {
+        if (params.name == "") {
+            collection.find({shopKind: params.shopKind}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+                res.status(200).json({
+                    "total": allData.length,
+                    "models": data
+                });
+            })
+        }
+        else {
+            collection.find({shopKind: params.shopKind, theme: params.name}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+                res.status(200).json({
+                    "total": allData.length,
+                    "models": data
+                });        
+            })
+        }
+
+    })
 });
 
 
@@ -544,19 +610,28 @@ router.delete('/model/batchremove', urlencodedParser, async function (req, res, 
 
 // 获取核销商品信息
 router.get('/model/confirmlistpage', urlencodedParser, async function (req, res, next) {
-	let params = req.query;
+    let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("CONFIRMLIST");
-    let page = parseInt(params.page);
-    collection.find({status: "0"}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
-        // console.log(data);
-        collection.find({status: "0"}).toArray(function (err, allData) {
-            res.status(200).json({
-                "total": allData.length,
-                "models": data
-            });
-        })
-    });
+    let page = parseInt(params.page) - 1;
+    collection.find({status: "0"}).toArray(function (err, allData) {
+        if (params.orderNumber == "") {
+            collection.find({status: "0"}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+                res.status(200).json({
+                    "total": allData.length,
+                    "models": data
+                });
+            })
+        }
+        else {
+            collection.find({orderNumber: params.orderNumber,status: "0"}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+                res.status(200).json({
+                    "total": allData.length,
+                    "models": data
+                });
+            })
+        }
+    })
 });
 
 

@@ -15,7 +15,9 @@
     "mongod": "^2.0.0",
     "mongodb": "^3.0.4",
     "morgan": "~1.9.0",
-    "serve-favicon": "~2.4.5"
+    "qiniu": "^7.2.1",
+    "serve-favicon": "~2.4.5",
+    "sha1": "^1.1.1"
   },
   "devDependencies": {
     "mocha": "^5.0.4",

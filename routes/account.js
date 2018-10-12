@@ -21,30 +21,23 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("ACCOUNT");
-	let scoresCollection = await informationDB.getCollection("SCORES");
 	collection.findOne({ id: params.id }, function (err, data) {
 		if (data) {
-			scoresCollection.findOne({ id: params.id }, function (err, scoresData) {
-				if (!scoresData) {
-					res.status(200).json({ "access": 0 })
-				} else {
-					res.status(200).json({
-						_id: data._id,
-						id: data.id,
-						nickName: data.nickName,
-						name: data.name,
-						gender: data.gender,
-						access: data.access,
-						headimg: data.headimg,
-						tel: data.tel,
-						college: data.college,
-						scores: scoresData.scores
-					});
-				}
+			res.status(200).json({
+				_id: data._id,
+				id: data.id,
+				nickName: data.nickName,
+				name: data.name,
+				gender: data.gender,
+				access: data.access,
+				headimg: data.headimg,
+				tel: data.tel,
+				college: data.college,
+				scores: data.scores
 			});
 		}
 		else {
-			res.status(200).json({ "access": 0 })
+			res.status(200).json({ "access": -2 })
 		}
 
 	});
@@ -93,22 +86,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 				headimg: UsearData.headimg,
 				tel: UsearData.tel,
 				college: UsearData.college,
-				access: UsearData.access
-			}, function () {
-				status = 0;
-			})
-		}
-		else {
-			status = -1;
-		}
-	});
-
-	let scoresCollection = await informationDB.getCollection("SCORES");
-	//初始化积分表
-	scoresCollection.findOne({ id: UsearData.id }, function (err, data) {
-		if (!data) {
-			scoresCollection.insertOne({
-				id: UsearData.id,
+				access: UsearData.access,
 				scores: "0"
 			}, function () {
 				status = 0;
@@ -146,21 +124,6 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 	}
 
 
-});
-
-//根据账户id获取积分
-router.get('/account/scores', urlencodedParser, async function (req, res, next) {
-	let params = req.query;
-	let collection = await informationDB.getCollection("SCORES");
-	collection.findOne({ id: params.id }, function (err, data) {
-		if (!data) {
-			res.status(400).json({ "code": "-1" })
-		} else {
-			res.status(200).json({
-				scores: data.scores
-			});
-		}
-	});
 });
 
 
