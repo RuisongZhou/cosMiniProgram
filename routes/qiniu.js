@@ -30,7 +30,7 @@ router.get('/qiniutoken', urlencodedParser, async function (req, res, next) {
   res.status(200).json({ "token": upload_token })
 });
 
-module.exports = router;
+//  module.exports = router;
 function utf16to8(str) {
 	var out, i, len, c;
 	out = "";
@@ -184,29 +184,31 @@ const secretKey = 'RDoyAALlCrOyPOFuIMEcH81OaKijbqtg2MqstoLR'
 // 存储空间名
 const bucketName = 'wechat-program'
 
-module.exports.upload = (req, res) => {
-  // 文件名
-  const fileName = `${sha1(req.query.fileName)}.${req.query.fileName.split('.').pop()}`
+router.get('/qiniutoken', urlencodedParser,async function(req, res, next) {
+    // 文件名
+    let params = req.query;
+    // console.log(req)
+    const fileName = `${sha1(req.query.fileName)}.${req.query.fileName.split('.').pop()}`
+  
+    const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
+    const putPolicy = new qiniu.rs.PutPolicy({
+      scope: `${bucketName}:${fileName}`,
+      expires: 60 * 60 * 1,
+      returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}'
+    })
+  
+    // 上传凭证
+    const uploadToken = putPolicy.uploadToken(mac)
+  
+    res.status(200).json({
+      code: '1',
+      desc: 'ok',
+      result: {
+        bucketName,
+        fileName,
+        uploadToken
+      }
+    })
+  });
 
-  const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
-  const putPolicy = new qiniu.rs.PutPolicy({
-    scope: `${bucketName}:${fileName}`,
-    expires: 60 * 60 * 1,
-    returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}'
-  })
-
-  // 上传凭证
-  const uploadToken = putPolicy.uploadToken(mac)
-
-  res.send({
-    code: '1',
-    desc: 'ok',
-    result: {
-      bucketName,
-      fileName,
-      uploadToken
-    }
-  })
-}
-
-
+  module.exports = router;

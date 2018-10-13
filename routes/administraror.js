@@ -332,7 +332,8 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 community: UsearData.community,
                 tel: UsearData.tel,
                 permission: UsearData.permission,
-                access: UsearData.access
+                access: UsearData.access,
+                scores: "0"
 			}, function () {
                 res.status(200).json({ "code": "200" });
 			})
@@ -499,10 +500,10 @@ router.delete('/admin/remove', urlencodedParser, async function (req, res, next)
     let collection = await informationDB.getCollection("ADMINISTORATOR");
     collection.findOne({ username: username }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "msg": "not found" })
+            res.status(400).json({ "code":"0","description": "not found" })
         } else {
             collection.remove({username: username},function () {
-                res.status(200).json({ "msg": "delete success" });
+                res.status(200).json({ "code":"1", "description": "delete success" });
                 });
         }
     });
@@ -538,7 +539,7 @@ router.delete('/user/batchremove', urlencodedParser, async function (req, res, n
     let collection = await informationDB.getCollection("ADMINISTORATOR");
 
     collection.remove({username: {"$in": usernameArray}},function () {
-        res.status(200).json({ "msg": "delete success" });
+        res.status(200).json({ "description": "delete success" });
         });
 
 });
@@ -581,10 +582,10 @@ router.delete('/model/remove', urlencodedParser, async function (req, res, next)
     let collection = await informationDB.getCollection("SHOP");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "msg": "not found" })
+            res.status(400).json({ "description": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
-                res.status(200).json({ "msg": "delete success" });
+                res.status(200).json({ "description": "delete success" });
                 });
         }
     });
@@ -603,7 +604,7 @@ router.delete('/model/batchremove', urlencodedParser, async function (req, res, 
     let collection = await informationDB.getCollection("SHOP");
 
     collection.remove({_id: {"$in": Idsarray}},function () {
-        res.status(200).json({ "msg": "delete success" });
+        res.status(200).json({ "description": "delete success" });
         });
 
 });
@@ -637,7 +638,8 @@ router.get('/model/confirmlistpage', urlencodedParser, async function (req, res,
 
 //核销商品
 router.post('/model/confirm', urlencodedParser, async function (req, res, next) {
-    let orderNumber = req.body.id;
+    let orderNumber = req.body.orderNumber;
+    console.log(req.body)
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
     confirmCollection.findOne({orderNumber: orderNumber}, function (err, data) {
         if (!data) {

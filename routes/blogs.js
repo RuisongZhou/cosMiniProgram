@@ -56,7 +56,7 @@ router.get('/user/postblogs', urlencodedParser, async function (req, res, next) 
 });
 
 
-// 获取所有板块信息
+// 获取部分板块信息
 router.get('/boards', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
@@ -74,7 +74,16 @@ router.get('/boards', urlencodedParser, async function (req, res, next) {
 	}
 });
 
-
+// 获取所有板块信息
+router.get('/allBoards', urlencodedParser, async function (req, res, next) {
+	let collection = await informationDB.getCollection("BOARDS");
+	collection.find().sort(['_id', 1]).toArray(function (err, data) {
+		console.log(data);
+		res.status(200).json({
+			"Boards": data
+		});
+	});
+});
 
 // 获取回帖
 router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
@@ -126,6 +135,32 @@ router.post('/newBoard', urlencodedParser, async function (req, res, next) {
 
 });
 
+//修改板块信息
+router.post('/board/edit', urlencodedParser, async function (req, res, next) {
+	let board = {
+		_id: req.body.id,
+		name: req.body.name,
+		description: req.body.description
+	}
+	console.log(board)
+	let collection = await informationDB.getCollection("BOARDS");
+	collection.findOne({ _id: ObjectID(board._id) }, function (err, data) {
+		if (!data) {
+			res.status(400).json({ "code": "-1" })
+		} else {
+			collection.save({
+				_id: ObjectID(data._id),
+				name: board.name,
+				description: board.description,
+				time: data.time,
+				picture: data.picture,
+				isSystem: data.isSystem
+			},function () {
+				res.status(200).json({ "code": "1" })
+			});
+		}
+	});
+});
 // 删除板块
 router.post('/board/remove', urlencodedParser, async function (req, res, next) {
     let Id  =  req.body.id;
@@ -135,10 +170,10 @@ router.post('/board/remove', urlencodedParser, async function (req, res, next) {
     let collection = await informationDB.getCollection("BOARDS");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "msg": "not found" })
+            res.status(400).json({ "code":"0","msg": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
-                res.status(200).json({ "msg": "delete success" });
+                res.status(200).json({  "code":"1", "msg": "delete success" });
                 });
         }
     });
@@ -154,10 +189,10 @@ router.delete('/postblogs/delete', urlencodedParser, async function (req, res, n
     let collection = await informationDB.getCollection("POSTBLOGS");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "msg": "not found" })
+            res.status(400).json({"code":"0", "msg": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
-                res.status(200).json({ "msg": "delete success" });
+                res.status(200).json({ "code":"1","msg": "delete success" });
                 });
         }
     });
