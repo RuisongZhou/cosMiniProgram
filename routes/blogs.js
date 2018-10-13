@@ -215,7 +215,6 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("POSTBLOGS");
 	let accountCollection = await informationDB.getCollection("ACCOUNT");
 
-	//初始化账户表
 	accountCollection.findOne({ id: postBlog.poster }, function (err, data) {
 		collection.insertOne({
 			theme: postBlog.theme,
@@ -231,7 +230,8 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 			likePicture: [],
 			likenumber: 0,
 			board: postBlog.board,
-			picture: postBlog.picture
+			picture: postBlog.picture,
+			isTop: 0
 		});
 		res.status(200).json({ "code": "1" });
 	});
@@ -332,7 +332,9 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 				}
 				else {
 					likeIds.push(likeBlog.id);
-					likePicture.push(likeBlog.headimg);
+					if (likePicture.length <= 6) {
+						likePicture.push(likeBlog.headimg);
+					}
 				}
 				likenumber = likeIds.length;
 
@@ -359,7 +361,7 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 	}
 
 	if (likeBlog.describe == 'reply') {
-		//将点赞加入发帖中
+		//将点赞加入回帖中
 		replyCollection.findOne({ _id: ObjectID(likeBlog.themeId) }, function (err, data) {
 			if (data) {
 				let likeIds = data.likeIds;
@@ -371,7 +373,9 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 				}
 				else {
 					likeIds.push(likeBlog.id);
-					likePicture.push(likeBlog.headimg);
+					if (likePicture.length <= 6) {
+						likePicture.push(likeBlog.headimg);
+					}
 				}
 				likenumber = likeIds.length;
 				replyCollection.save({

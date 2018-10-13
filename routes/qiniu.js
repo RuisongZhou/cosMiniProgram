@@ -178,13 +178,13 @@ const qiniu = require('qiniu')
 const sha1 = require('sha1')
 
 // 七牛提供的公钥
-const accessKey = 'd6BNzQBTb6CpgHs47e26eg9wC9lBX3guSK9JO7Wl'
+const accessKey = 'd6BNzQBTb6CpgHs47e26eg9wC9lBX3guSK9JO7Wl';
 // 七牛提供的私钥
-const secretKey = 'RDoyAALlCrOyPOFuIMEcH81OaKijbqtg2MqstoLR'
+const secretKey = 'RDoyAALlCrOyPOFuIMEcH81OaKijbqtg2MqstoLR';
 // 存储空间名
-const bucketName = 'wechat-program'
+const bucketName = 'wechat-program';
 
-router.get('/qiniutoken', urlencodedParser,async function(req, res, next) {
+router.get('/qiniutokenadmin', urlencodedParser,async function(req, res, next) {
     // 文件名
     let params = req.query;
     // console.log(req)
@@ -199,7 +199,7 @@ router.get('/qiniutoken', urlencodedParser,async function(req, res, next) {
   
     // 上传凭证
     const uploadToken = putPolicy.uploadToken(mac)
-  
+    console.log("===============");
     res.status(200).json({
       code: '1',
       desc: 'ok',
