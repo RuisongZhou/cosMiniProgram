@@ -635,6 +635,36 @@ router.get('/model/confirmlistpage', urlencodedParser, async function (req, res,
     })
 });
 
+// 帖子置顶
+router.post('/blogs/top', urlencodedParser, async function (req, res, next) {
+    let Id = req.body.id;
+    console.log(req.body)
+    let collection = await informationDB.getCollection("POSTBLOGS");
+    collection.findOne({_id: ObjectID(Id)}, function (err, data) {
+        if (!data) {
+            res.status(400).json({ "code": "-1" })
+        } else {
+            confirmCollection.save({
+                _id: ObjectID(data._id),
+                theme: data.theme,
+                content: data.content,
+                poster: data.poster,
+                time: data.time,
+                replyBlogsId: data.replyBlogsId,
+                likeIds: data.likeIds,
+                likePicture: data.likePicture,
+                likenumber: data.likenumber,
+                board: data.board,
+                picture: data.picture,
+                isTop: 1
+            },function () {
+                res.status(200).json({ "code": "1" })
+            });
+        }
+    });
+});
+
+
 
 //核销商品
 router.post('/model/confirm', urlencodedParser, async function (req, res, next) {

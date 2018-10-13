@@ -118,7 +118,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
             number: good.number,
             picture: good.picture,
             shopKind: good.shopKind,
-            nickName: good.nickName
+            nickName: good.nickName,
+            time: getDate()
         }, function () {
             res.status(200).json({ "code": "1" });
         })
@@ -190,10 +191,11 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
                         content: good.content,
                         poster: good.poster,
                         price: good.price,
-                        number: req.body.number,
+                        number: good.number,
                         picture: good.picture,
                         shopKind: good.shopKind,
-                        nickName: good.nickName
+                        nickName: good.nickName,
+                        time: data.time
                     },function () {
                         res.status(200).json({ "code": "1" })
                     });
