@@ -544,7 +544,7 @@ router.delete('/user/batchremove', urlencodedParser, async function (req, res, n
     let collection = await informationDB.getCollection("ADMINISTORATOR");
 
     collection.remove({username: {"$in": usernameArray}},function () {
-        res.status(200).json({ "description": "delete success" });
+        res.status(200).json({ "code": "1","description": "delete success" });
         });
 
 });
