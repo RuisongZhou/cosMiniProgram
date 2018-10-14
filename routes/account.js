@@ -33,7 +33,10 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 				headimg: data.headimg,
 				tel: data.tel,
 				college: data.college,
-				scores: data.scores
+				scores: data.scores,
+				lockedScores: data.lockedScores,
+				willGetScores: data.willGetScores,
+				community: data.community
 			});
 		}
 		else {
@@ -69,7 +72,8 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 		headimg: req.body.headimg,
 		tel: req.body.tel,
 		college: req.body.college,
-		access: 0
+		access: 0,
+		community: req.body.community
 	}
 
 	//开始初始化数据库
@@ -87,7 +91,10 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 				tel: UsearData.tel,
 				college: UsearData.college,
 				access: UsearData.access,
-				scores: "0"
+				scores: "0",
+				lockedScores: "0",
+				willGetScores: "0",
+				community: UsearData.community
 			}, function () {
 				status = 0;
 			})

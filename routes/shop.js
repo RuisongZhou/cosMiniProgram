@@ -103,7 +103,8 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
         number: req.body.number,
         picture: req.body.picture,
         shopKind: req.body.shopKind,
-        nickName: req.body.nickName
+        nickName: req.body.nickName,
+        feature: req.body.feature
     }
 
     console.log(good);
@@ -119,6 +120,7 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
             picture: good.picture,
             shopKind: good.shopKind,
             nickName: good.nickName,
+            feature: good.feature,
             time: getDate()
         }, function () {
             res.status(200).json({ "code": "1" });
@@ -172,7 +174,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         number: req.body.number,
         picture: req.body.picture,
         shopKind: req.body.shopKind,
-        nickName: req.body.nickName
+        nickName: req.body.nickName,
+        feature: req.body.feature
     }
 
     if (good.describe == 'ChangeGood') {
@@ -195,7 +198,8 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
                         picture: good.picture,
                         shopKind: good.shopKind,
                         nickName: good.nickName,
-                        time: data.time
+                        time: data.time,
+                        feature: good.feature
                     },function () {
                         res.status(200).json({ "code": "1" })
                     });
@@ -295,7 +299,8 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                         number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
                                         picture: data.picture,
                                         shopKind: data.shopKind,
-                                        nickName: data.nickName
+                                        nickName: data.nickName,
+                                        feature: data.feature
                                     },function () {
                                         buyer.scores = String(m_score);
                                         collection.save({
@@ -417,7 +422,8 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                         number: String(parseInt(data.number)-parseInt(confirm.buyNumber)),
                                         picture: data.picture,
                                         shopKind: data.shopKind,
-                                        nickName: data.nickName
+                                        nickName: data.nickName,
+                                        feature: data.feature
                                     },function () {
                                         buyer.scores = String(m_score);
                                         collection.save({

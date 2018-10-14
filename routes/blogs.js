@@ -23,7 +23,45 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("POSTBLOGS");
 	if (params.describe == 'getPostBlogs') {
 		// let page = parseInt(params.page);
-		collection.find({board: params.board}).sort(['_id', -1]).toArray(function (err, data) {
+		collection.find({board: params.board, isTop: "0"}).sort(['_id', -1]).toArray(function (err, data) {
+            console.log(data);
+			res.status(200).json({
+				"PostBlogs": data
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
+// 获取置顶帖
+router.get('/postblogs/top', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("POSTBLOGS");
+	if (params.describe == 'getPostBlogs') {
+		// let page = parseInt(params.page);
+		collection.find({board: params.board, isTop: "1"}).sort(['_id', -1]).toArray(function (err, data) {
+            console.log(data);
+			res.status(200).json({
+				"PostBlogs": data
+			});
+        });
+	}
+	else {
+		res.status(400).json({ "code": "-1" });
+	}
+});
+
+// 获取精华帖子
+router.get('/postblogs/essence', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("POSTBLOGS");
+	if (params.describe == 'getPostBlogs') {
+		// let page = parseInt(params.page);
+		collection.find({board: params.board, isEssence: "1"}).sort(['_id', -1]).toArray(function (err, data) {
             console.log(data);
 			res.status(200).json({
 				"PostBlogs": data
@@ -231,7 +269,8 @@ router.post('/postblogs', urlencodedParser, async function (req, res, next) {
 			likenumber: 0,
 			board: postBlog.board,
 			picture: postBlog.picture,
-			isTop: 0
+			isTop: "0",
+			isEssence: "0"
 		});
 		res.status(200).json({ "code": "1" });
 	});
@@ -286,7 +325,9 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 							likePicture: data.likePicture,
 							likenumber: data.likenumber,
 							board: data.board,
-							picture: data.picture
+							picture: data.picture,
+							isTop: data.isTop,
+							isEssence: data.isEssence
 						}, function () {
 							res.status(200).json({ "code": "1" });
 						})
@@ -349,7 +390,9 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					likePicture: likePicture,
 					likenumber: likenumber,
 					board: data.board,
-					picture: data.picture
+					picture: data.picture,
+					isTop: data.isTop,
+					isEssence: data.isEssence
 				}, function () {
 					res.status(200).json({ "code": "1" });
 				})

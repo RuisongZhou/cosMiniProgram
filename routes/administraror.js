@@ -97,7 +97,9 @@ router.get('/administorator', urlencodedParser, async function (req, res, next) 
                 tel: data.tel,
                 permission: data.permission,
                 scores: data.scores,
-                access: data.access
+                access: data.access,
+                college: data.college,  //新加，大学
+                IDcard: data.IDcard,    //新加，身份证号
             });
 		}
 		else {
@@ -136,7 +138,9 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                 tel: data.tel,
                 permission: data.permission,
                 scores: data.scores,
-                access: data.access
+                access: data.access,
+                college: data.college,  //新加，大学
+                IDcard: data.IDcard,    //新加，身份证号
 			}
 			if (aDeal.score < 0) {
 				res.status(200).json({ "code": "-2" })
@@ -153,7 +157,9 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                         tel: senderScores.tel,
                         permission: senderScores.permission,
                         scores: senderScores.scores,
-                        access: senderScores.access
+                        access: senderScores.access,
+                        college: senderScores.college,  //新加，大学
+                        IDcard: senderScores.IDcard,    //新加，身份证号
                     });
                 }
                 else if (aDeal.senderPermission == "2") {
@@ -173,7 +179,9 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                             tel: senderScores.tel,
                             permission: senderScores.permission,
                             scores: senderScores.scores,
-                            access: senderScores.access
+                            access: senderScores.access,
+                            college: senderScores.college,  //新加，大学
+                            IDcard: senderScores.IDcard,    //新加，身份证号
                         });
                     }
                 }
@@ -208,7 +216,9 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 tel: toScores.tel,
                                 permission: toScores.permission,
                                 scores: toScores.scores,
-                                access: toScores.access
+                                access: toScores.access,
+                                college: senderScores.college,  //新加，大学
+                                IDcard: senderScores.IDcard,    //新加，身份证号
                             });
 
                         }
@@ -231,7 +241,8 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 headimg: userData.headimg,
                                 tel: userData.tel,
                                 college: userData.college,
-                                scores: userData.scores
+                                scores: userData.scores,
+                                community: userData.community
                             }
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
@@ -245,7 +256,10 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 headimg: toScores.headimg,
                                 tel: toScores.tel,
                                 college: toScores.college,
-                                scores: toScores.scores
+                                community: toScores.community,
+                                scores: toScores.scores,
+                                lockedScores: userData.lockedScores,
+                                willGetScores: userData.willGetScores
                             });
                         }
                     });
@@ -316,7 +330,9 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
         community: req.body.community,
         tel: req.body.tel,
         permission: req.body.permission,
-        access: 0
+        access: 0,
+        college: req.body.college,  //新加，大学
+        IDcard: req.body.IDcard,    //新加，身份证号
 	}
 
     //开始初始化数据库
@@ -338,7 +354,9 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 tel: UsearData.tel,
                 permission: UsearData.permission,
                 access: UsearData.access,
-                scores: "0"
+                scores: "0",
+                college: UsearData.college,  //新加，大学
+                IDcard: UsearData.IDcard,    //新加，身份证号
 			}, function () {
                 res.status(200).json({ "code": "200" });
 			})
@@ -374,7 +392,9 @@ router.post('/admin/register', urlencodedParser, async function (req, res, next)
                 tel: data.tel,
                 permission: data.permission,
                 access: parseInt(access),
-                scores: data.scores
+                scores: data.scores,
+                college: data.college,  //新加，大学
+                IDcard: data.IDcard,    //新加，身份证号
             },function () {
                 res.status(200).json({ "code": "1" })
             });
@@ -402,7 +422,8 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
 				gender: data.gender,
 				headimg: data.headimg,
 				tel: data.tel,
-				college: data.college,
+                college: data.college,
+                community: data.community,
                 access: parseInt(access),
                 scores: data.scores
             },function () {
@@ -661,13 +682,45 @@ router.post('/blogs/top', urlencodedParser, async function (req, res, next) {
                 likenumber: data.likenumber,
                 board: data.board,
                 picture: data.picture,
-                isTop: 1
+                isTop: "1",
+                isEssence: data.isEssence
             },function () {
                 res.status(200).json({ "code": "1" })
             });
         }
     });
 });
+
+// 帖子精华
+router.post('/blogs/essence', urlencodedParser, async function (req, res, next) {
+    let Id = req.body.id;
+    console.log(req.body)
+    let collection = await informationDB.getCollection("POSTBLOGS");
+    collection.findOne({_id: ObjectID(Id)}, function (err, data) {
+        if (!data) {
+            res.status(400).json({ "code": "-1" })
+        } else {
+            confirmCollection.save({
+                _id: ObjectID(data._id),
+                theme: data.theme,
+                content: data.content,
+                poster: data.poster,
+                time: data.time,
+                replyBlogsId: data.replyBlogsId,
+                likeIds: data.likeIds,
+                likePicture: data.likePicture,
+                likenumber: data.likenumber,
+                board: data.board,
+                picture: data.picture,
+                isTop: data.isTop,
+                isEssence: "1"
+            },function () {
+                res.status(200).json({ "code": "1" })
+            });
+        }
+    });
+});
+
 
 
 
