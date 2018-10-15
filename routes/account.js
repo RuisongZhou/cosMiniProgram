@@ -133,6 +133,45 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 
 });
 
+// 将消息设为已读
+router.post('/news/read', urlencodedParser, async function (req, res, next) {
+    let newsId = req.body.id
+
+    let newsCollection = await informationDB.getCollection("NEWS");
+
+    newsCollection.findOne({ _id: ObjectID(newsId) }, function (err, newsData) {
+        if (!newsData) {
+            res.status(200).json({ "code": "-1" , "msg": "查无此人"});
+        }
+        else {
+            newsCollection.save({
+                _id: ObjectID(newsData._id),
+                toId: newsData.toId,
+                poster: newsData.poster,
+                read: "1",
+                option: newsData.option,
+                content: newsData.content,
+                time: newsData.time
+            }, function () {
+                res.status(200).json({ "code": "1" });
+            })
+        }
+    })
+})
+
+//　查看消息
+router.get('/news', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("NEWS");
+    collection.find({toId: params.id}).sort(['_id', -1]).toArray(function (err, data) {
+        // console.log(data);
+        res.status(200).json({
+            "total": data.length,
+            "news": data
+        });
+    });
+});
 
 function getDate(){
 	nowDate = new Date();

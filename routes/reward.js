@@ -90,6 +90,7 @@ router.post('/reward/pick', urlencodedParser, async function (req, res, next) {
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let rewardCollection = await informationDB.getCollection("REWARD");
     let accountCollection = await informationDB.getCollection("ACCOUNT");
+    let newsCollection = await informationDB.getCollection("NEWS");
     
     accountCollection.findOne({ id: rewardPick.pickerId }, function (err, data) {
         if (!data) {
@@ -101,6 +102,7 @@ router.post('/reward/pick', urlencodedParser, async function (req, res, next) {
                     res.status(200).json({ "code": "-1" ,"msg": "没有此悬赏"});
                 }
                 else {
+                    console.log(rewardData)
                     collection.insertOne({
                         reward: rewardData,
                         picker: data,
@@ -110,9 +112,23 @@ router.post('/reward/pick', urlencodedParser, async function (req, res, next) {
                             posterComplete: "0"
                         },
                         describe: rewardPick.describe,
-                        time: getDate()
+                        time: getDate(),
+                        comment: {
+                            pickerComment: "",
+                            posterComment: ""
+                        }
                     }, function () {
-                        res.status(200).json({ "code": "1" });
+                        //发送消息
+                        newsCollection.insertOne({
+                            toId: rewardData.poster.id,
+                            poster: data,
+                            read: "0",
+                            option: "接受悬赏",
+                            content: rewardPick.describe,
+                            time: getDate()
+                        }, function () {
+                            res.status(200).json({ "code": "1" });
+                        })
                     })
                 }
             })
@@ -146,7 +162,8 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                 status: "1",
                 completed: data.completed,
                 describe: data.describe,
-                time: data.time
+                time: data.time,
+                comment: data.comment
             }, function () {
                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                     accountCollection.save({
@@ -196,13 +213,15 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
 //接受者完成悬赏
 router.post('/reward/pickerComplete', urlencodedParser, async function (req, res, next) {
     let picker = {
-        rewardConfirmId: req.body.rewardConfirmId
+        rewardConfirmId: req.body.rewardConfirmId,
+        pickerComment: req.body.pickerComment
     }
     console.log(picker);
 
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let rewardCollection = await informationDB.getCollection("REWARD");
     let accountCollection = await informationDB.getCollection("ACCOUNT");
+    let newsCollection = await informationDB.getCollection("NEWS");
 
     collection.findOne({ _id: ObjectID(picker.rewardConfirmId) }, function (err, data) {
         if (!data) {
@@ -219,7 +238,11 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                     posterComplete: data.completed.posterComplete
                 },
                 describe: data.describe,
-                time: data.time
+                time: data.time,
+                comment: {
+                    pickerComment: picker.pickerComment,
+                    posterComment: data.comment.posterComment
+                }
             }, function () {
                 if (data.completed.posterComplete == "1") {
                     rewardCollection.findOne({ _id: ObjectID(data.reward._id) }, function (err, rewardData) {
@@ -240,6 +263,16 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                 completed: "1",
                                 time: rewardData.time
                             }, function () {
+                                //发布消息
+                                newsCollection.insertOne({
+                                    toId: rewardData.poster.id,
+                                    poster: data.picker,
+                                    read: "0",
+                                    option: "悬赏评价",
+                                    content: picker.pickerComment,
+                                    time: getDate()
+                                })
+
                                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                                     accountCollection.save({
                                         _id: ObjectID(userData._id),
@@ -272,9 +305,9 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                         lockedScores: String(parseInt(userData.lockedScores) - parseInt(data.reward.price)),
                                         willGetScores: userData.willGetScores
                                     })
-                                })
+                                }),
 
-                                res.status(200).json({ "code": "1"});
+                                res.status(200).json({ "code": "1"})
                             })
                         }
                     })
@@ -290,13 +323,15 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
 //悬赏者完成悬赏
 router.post('/reward/posterComplete', urlencodedParser, async function (req, res, next) {
     let poster = {
-        rewardConfirmId: req.body.rewardConfirmId
+        rewardConfirmId: req.body.rewardConfirmId,
+        posterComment: req.body.posterComment
     }
     console.log(poster);
 
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let rewardCollection = await informationDB.getCollection("REWARD");
     let accountCollection = await informationDB.getCollection("ACCOUNT");
+    let newsCollection = await informationDB.getCollection("NEWS");
 
     collection.findOne({ _id: ObjectID(poster.rewardConfirmId) }, function (err, data) {
         if (!data) {
@@ -313,7 +348,11 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                     posterComplete: "1"
                 },
                 describe: data.describe,
-                time: data.time
+                time: data.time,
+                comment: {
+                    pickerComment: data.comment.pickerComment,
+                    posterComment: poster.posterComment
+                }
             }, function () {
                 if (data.completed.pickerComplete == "1") {
                     rewardCollection.findOne({ _id: ObjectID(data.reward._id) }, function (err, rewardData) {
@@ -335,6 +374,17 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                 completed: "1",
                                 time: rewardData.time
                             }, function () {
+                                //发布消息
+                                newsCollection.insertOne({
+                                    toId: data.picker.id,
+                                    poster: rewardData.poster,
+                                    read: "0",
+                                    option: "悬赏评价",
+                                    content: poster.posterComment,
+                                    time: getDate()
+                                })
+
+                                                                
                                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                                     console.log(userData)
                                     accountCollection.save({
@@ -407,8 +457,6 @@ router.get('/reward/confirm', urlencodedParser, async function (req, res, next) 
         });
     });
 });
-
-
 
 
 function getDate(){

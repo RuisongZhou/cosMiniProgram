@@ -289,6 +289,7 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 	let replyCollection = await informationDB.getCollection("REPLYBLOGS");
 	let accountCollection = await informationDB.getCollection("ACCOUNT");
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
+	let newsCollection = await informationDB.getCollection("NEWS");
 
 	accountCollection.findOne({ id: replyBlog.poster }, function (err, data) {
 		replyCollection.insertOne({
@@ -329,7 +330,24 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 							isTop: data.isTop,
 							isEssence: data.isEssence
 						}, function () {
-							res.status(200).json({ "code": "1" });
+							//发送消息
+							accountCollection.findOne({ id: replyBlog.poster }, function (err, userData) {
+								if (!userData) {
+									res.status(200).json({ "code": "-1" , "msg": "查无此人"});
+								}
+								else {
+									newsCollection.insertOne({
+										toId: data.poster.id,
+										poster: userData,
+										read: "0",
+										option: "回复",
+										content: replyBlog.content,
+										time: getDate()
+									}, function () {
+										res.status(200).json({ "code": "1" });
+									})
+								}
+							})
 						})
 					}
 					else {
@@ -357,6 +375,8 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 
 	let postCollection = await informationDB.getCollection("POSTBLOGS");
 	let replyCollection = await informationDB.getCollection("REPLYBLOGS");
+	let newsCollection = await informationDB.getCollection("NEWS");
+	let accountCollection = await informationDB.getCollection("ACCOUNT");
 
 	if (likeBlog.describe == 'post') {
 		//将点赞加入发帖中
@@ -394,7 +414,24 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					isTop: data.isTop,
 					isEssence: data.isEssence
 				}, function () {
-					res.status(200).json({ "code": "1" });
+					//发送消息
+					accountCollection.findOne({ id: likeBlog.id }, function (err, userData) {
+						if (!userData) {
+							res.status(200).json({ "code": "-1" , "msg": "查无此人"});
+						}
+						else {
+							newsCollection.insertOne({
+								toId: data.poster.id,
+								poster: userData,
+								read: "0",
+								option: "点赞",
+								content: "点赞",
+								time: getDate()
+							}, function () {
+								res.status(200).json({ "code": "1" });
+							})
+						}
+					})
 				})
 			}
 			else {

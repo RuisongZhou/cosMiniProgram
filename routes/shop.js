@@ -235,16 +235,38 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
     let shopCollection = await informationDB.getCollection("SHOP");
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
     let collection = await informationDB.getCollection("ACCOUNT");
-    let adminCollection = await informationDB.getCollection("ADMINISTORATOR")
+    let adminCollection = await informationDB.getCollection("ADMINISTORATOR");
+    let newsCollection = await informationDB.getCollection("NEWS");
 
+    
     shopCollection.findOne({ _id: ObjectID(confirm.modelId) }, function (err, data) {
 		if (!data) {
 			res.status(400).json({ "code": "-1" })
 		} else {
             console.log(data)
+            //发送消息
+            accountCollection.findOne({ id: confirm.buyer }, function (err, userData) {
+                if (!userData) {
+                    res.status(200).json({ "code": "-1" , "msg": "查无此人"});
+                }
+                else {
+                    newsCollection.insertOne({
+                        toId: data.poster,
+                        poster: userData,
+                        read: "0",
+                        option: "购买商品",
+                        content: "购买商品",
+                        time: getDate()
+                    }, function () {
+                        res.status(200).json({ "code": "1" });
+                    })
+                }
+            })
+
             if (data.shopKind == "0") {
                 adminCollection.findOne({ username: data.poster }, function (err, posterData) {
                     console.log(posterData)
+
                     confirmCollection.insertOne({
                         orderNumber: orderNumber,
                         buyer: confirm.buyer,
