@@ -492,6 +492,18 @@ router.get('/reward/confirm', urlencodedParser, async function (req, res, next) 
     });
 });
 
+// 根据级别获取悬赏
+router.get('/reward/level', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("REWARD");
+    collection.find({level: params.level}).sort(['_id', -1]).toArray(function (err, data) {
+        res.status(200).json({
+            "rewards": data
+        });
+    });
+});
+
 
 function getDate(){
 	nowDate = new Date();
