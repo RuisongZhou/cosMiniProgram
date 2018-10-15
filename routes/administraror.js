@@ -342,7 +342,8 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
         permission: req.body.permission,
         access: 0,
         college: req.body.college,  //新加，大学
-        IDcard: req.body.IDcard,    //新加，身份证号
+        IDcard: req.body.IDcard,    //新加，身份证号，
+        scores: "0"
 	}
 
     //开始初始化数据库
@@ -352,6 +353,7 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
     if (UsearData.username == "adminroot") {
         UsearData.permission = 3;
         UsearData.access = 1;
+        UsearData.scores = "999";
     }
 
 	collection.findOne({ username: UsearData.username }, function (err, data) {
@@ -364,7 +366,7 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 tel: UsearData.tel,
                 permission: UsearData.permission,
                 access: UsearData.access,
-                scores: "0",
+                scores: UsearData.scores,
                 college: UsearData.college,  //新加，大学
                 IDcard: UsearData.IDcard,    //新加，身份证号
 			}, function () {
