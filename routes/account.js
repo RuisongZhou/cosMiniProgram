@@ -36,7 +36,12 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 				scores: data.scores,
 				lockedScores: data.lockedScores,
 				willGetScores: data.willGetScores,
-				community: data.community
+				community: data.community,
+				birthday: data.birthday,
+				IDcard: data.IDcard,
+				adress: data.adress,
+				QQ: data.QQ,
+				describe: data.describe
 			});
 		}
 		else {
