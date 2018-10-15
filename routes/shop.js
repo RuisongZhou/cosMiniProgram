@@ -240,7 +240,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
 		} else {
             console.log(data)
             //发送消息
-            accountCollection.findOne({ id: confirm.buyer }, function (err, userData) {
+            collection.findOne({ id: confirm.buyer }, function (err, userData) {
                 if (!userData) {
                     res.status(200).json({ "code": "-1" , "msg": "查无此人"});
                 }
@@ -252,8 +252,6 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                         option: "购买商品",
                         content: "购买商品",
                         time: getDate()
-                    }, function () {
-                        res.status(200).json({ "code": "1" });
                     })
                 }
             })
@@ -416,7 +414,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
             }
             else {
                 collection.findOne({ id: data.poster }, function (err, posterData) {
-                    console.log(posterData)
+                    console.log(data.poster)
                     confirmCollection.insertOne({
                         orderNumber: orderNumber,
                         buyer: confirm.buyer,
@@ -547,7 +545,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             community: modelKeeper.community,
                                                             birthday: modelKeeper.birthday,
                                                             IDcard: modelKeeper.IDcard,
-                                                            address: modelKeveperlData.address,
+                                                            address: modelKeeper.address,
                                                             QQ: modelKeeper.QQ,
                                                             describe: modelKeeper.describe
                                                         }, function () {
