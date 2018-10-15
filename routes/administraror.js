@@ -460,7 +460,7 @@ router.get('/user/list', urlencodedParser, async function (req, res, next) {
     let collection = await informationDB.getCollection("ACCOUNT");
     let alldata = [];
     let page = parseInt(params.page);
-    if (params.community == '') {
+    if (params.community == '' || params.community == '开发组'　|| params.community == '迷斯伍德动漫社') {
         collection.find({access: parseInt(params.access)}).sort(['_id', 1]).toArray(function (err, userdata) {
             // scoreCollection.find().sort(['_id', 1]).toArray(function (err, scoredata) {
             //     for (var i = 0; i<userdata.length;++i ) {
