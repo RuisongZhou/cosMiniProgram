@@ -481,14 +481,14 @@ router.get('/reward', urlencodedParser, async function (req, res, next) {
     });
 });
 
-// 获取我的悬赏
+// 根据id获取悬赏
 router.get('/reward/getById', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("REWARD");
     collection.find({_id: ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
-            "reward": data
+            "reward": data[0]
         });
     });
 });
@@ -514,7 +514,7 @@ router.get('/reward/level', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("REWARD");
     collection.find({level: params.level}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
-            "rewards": data[0]
+            "rewards": data
         });
     });
 });
