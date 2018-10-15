@@ -301,7 +301,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     community: buyerdata.community,
                                     birthday: buyerdata.birthday,
                                     IDcard: buyerdata.IDcard,
-                                    adress: buyerdata.adress,
+                                    address: buyerdata.address,
                                     QQ: buyerdata.QQ,
                                     describe: buyerdata.describe
                                 }
@@ -344,7 +344,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                             community: buyer.community,
                                             birthday: buyer.birthday,
                                             IDcard: buyer.IDcard,
-                                            adress: buyer.adress,
+                                            address: buyer.address,
                                             QQ: buyer.QQ,
                                             describe: buyer.describe
                                         }, function () {
@@ -369,7 +369,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             community: modelKeeperlData.community,
                                                             birthday: modelKeeperlData.birthday,
                                                             IDcard: modelKeeperlData.IDcard,
-                                                            adress: modelKeeperlData.adress,
+                                                            address: modelKeeperlData.address,
                                                             QQ: modelKeeperlData.QQ,
                                                             describe: modelKeeperlData.describe
                                                         }
@@ -392,7 +392,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             community: modelKeeper.community,
                                                             birthday: modelKeeper.birthday,
                                                             IDcard: modelKeeper.IDcard,
-                                                            adress: modelKeveperlData.adress,
+                                                            address: modelKeveperlData.address,
                                                             QQ: modelKeeper.QQ,
                                                             describe: modelKeeper.describe
                                                         }, function () {
@@ -456,7 +456,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     community: buyerdata.community,
                                     birthday: buyerdata.birthday,
                                     IDcard: buyerdata.IDcard,
-                                    adress: buyerdata.adress,
+                                    address: buyerdata.address,
                                     QQ: buyerdata.QQ,
                                     describe: buyerdata.describe
                                 }
@@ -499,7 +499,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                             community: buyer.community,
                                             birthday: buyer.birthday,
                                             IDcard: buyer.IDcard,
-                                            adress: buyer.adress,
+                                            address: buyer.address,
                                             QQ: buyer.QQ,
                                             describe: buyer.describe
                                         }, function () {
@@ -524,7 +524,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             community: modelKeeperlData.community,
                                                             birthday: modelKeeperlData.birthday,
                                                             IDcard: modelKeeperlData.IDcard,
-                                                            adress: modelKeeperlData.adress,
+                                                            address: modelKeeperlData.address,
                                                             QQ: modelKeeperlData.QQ,
                                                             describe: modelKeeperlData.describe
                                                         }
@@ -547,7 +547,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             community: modelKeeper.community,
                                                             birthday: modelKeeper.birthday,
                                                             IDcard: modelKeeper.IDcard,
-                                                            adress: modelKeveperlData.adress,
+                                                            address: modelKeveperlData.address,
                                                             QQ: modelKeeper.QQ,
                                                             describe: modelKeeper.describe
                                                         }, function () {

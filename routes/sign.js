@@ -107,7 +107,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
                                     community: userData.community,
                                     birthday: userData.birthday,
                                     IDcard: userData.IDcard,
-                                    adress: userData.adress,
+                                    address: userData.address,
                                     QQ: userData.QQ,
                                     describe: userData.describe
                                 });

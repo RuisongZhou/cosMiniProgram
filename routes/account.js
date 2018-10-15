@@ -39,7 +39,7 @@ router.get('/account', urlencodedParser, async function (req, res, next) {
 				community: data.community,
 				birthday: data.birthday,
 				IDcard: data.IDcard,
-				adress: data.adress,
+				address: data.address,
 				QQ: data.QQ,
 				describe: data.describe
 			});
@@ -81,7 +81,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 		community: req.body.community,
 		birthday: req.body.birthday,
 		IDcard: req.body.IDcard,
-		adress: req.body.adress,
+		address: req.body.address,
 		QQ: req.body.QQ,
 		describe: req.body.describe
 	}
@@ -107,7 +107,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 				community: UsearData.community,
 				birthday: req.body.birthday,
 				IDcard: req.body.IDcard,
-				adress: req.body.adress,
+				address: req.body.address,
 				QQ: req.body.QQ,
 				describe: req.body.describe
 			}, function () {

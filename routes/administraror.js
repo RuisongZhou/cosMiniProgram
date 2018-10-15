@@ -245,7 +245,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 community: UsearData.community,
                                 birthday: userData.birthday,
                                 IDcard: userData.IDcard,
-                                adress: userData.adress,
+                                address: userData.address,
                                 QQ: userData.QQ,
                                 describe: userData.describe
                             }
@@ -267,7 +267,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 willGetScores: toScores.willGetScores,
                                 birthday: toScores.birthday,
                                 IDcard: toScores.IDcard,
-                                adress: toScores.adress,
+                                address: toScores.address,
                                 QQ: toScores.QQ,
                                 describe: toScores.describe
                             });
@@ -441,7 +441,7 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
 				community: data.community,
 				birthday: data.birthday,
 				IDcard: data.IDcard,
-				adress: data.adress,
+				address: data.address,
 				QQ: data.QQ,
 				describe: data.describe
             },function () {

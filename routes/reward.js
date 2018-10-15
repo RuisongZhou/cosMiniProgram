@@ -57,7 +57,7 @@ router.post('/reward/add', urlencodedParser, async function (req, res, next) {
                     community: data.community,
                     birthday: data.birthday,
                     IDcard: data.IDcard,
-                    adress: data.adress,
+                    address: data.address,
                     QQ: data.QQ,
                     describe: data.describe
                 })
@@ -186,7 +186,7 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                         community: userData.community,
                         birthday: userData.birthday,
                         IDcard: userData.IDcard,
-                        adress: userData.adress,
+                        address: userData.address,
                         QQ: userData.QQ,
                         describe: userData.describe
                     })
@@ -300,7 +300,7 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                         community: userData.community,
                                         birthday: userData.birthday,
                                         IDcard: userData.IDcard,
-                                        adress: userData.adress,
+                                        address: userData.address,
                                         QQ: userData.QQ,
                                         describe: userData.describe
                                     })
@@ -323,7 +323,7 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                         community: userData.community,
                                         birthday: userData.birthday,
                                         IDcard: userData.IDcard,
-                                        adress: userData.adress,
+                                        address: userData.address,
                                         QQ: userData.QQ,
                                         describe: userData.describe
                                     })
@@ -425,7 +425,7 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                         community: userData.community,
                                         birthday: userData.birthday,
                                         IDcard: userData.IDcard,
-                                        adress: userData.adress,
+                                        address: userData.address,
                                         QQ: userData.QQ,
                                         describe: userData.describe
                                     })
@@ -448,7 +448,7 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                         community: userData.community,
                                         birthday: userData.birthday,
                                         IDcard: userData.IDcard,
-                                        adress: userData.adress,
+                                        address: userData.address,
                                         QQ: userData.QQ,
                                         describe: userData.describe
                                     })
