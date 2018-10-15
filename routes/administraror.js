@@ -242,7 +242,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 tel: userData.tel,
                                 college: userData.college,
                                 scores: userData.scores,
-                                community: UsearData.community,
+                                community: userData.community,
                                 birthday: userData.birthday,
                                 IDcard: userData.IDcard,
                                 address: userData.address,
