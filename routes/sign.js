@@ -101,7 +101,15 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
                                     headimg: data.headimg,
                                     tel: data.tel,
                                     college: data.college,
-                                    scores: String(parseInt(data.scores)+1)
+                                    scores: String(parseInt(data.scores)+1),
+                                    lockedScores: data.lockedScores,
+                                    willGetScores: data.willGetScores,
+                                    community: userData.community,
+                                    birthday: userData.birthday,
+                                    IDcard: userData.IDcard,
+                                    adress: userData.adress,
+                                    QQ: userData.QQ,
+                                    describe: userData.describe
                                 });
                             });
                         }

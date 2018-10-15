@@ -184,26 +184,21 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
             if (!data) {
                 res.status(400).json({ "code": "-1" })
             } else {
-                if (good.poster != data.poster) {
-                    res.status(200).json({ "code": "-2" })
-                }
-                else {
-                    collection.save({
-                        _id: ObjectID(good.goodId),
-                        name: good.name,
-                        content: good.content,
-                        poster: good.poster,
-                        price: good.price,
-                        number: good.number,
-                        picture: good.picture,
-                        shopKind: good.shopKind,
-                        nickName: good.nickName,
-                        time: data.time,
-                        feature: good.feature
-                    },function () {
-                        res.status(200).json({ "code": "1" })
-                    });
-                }
+                collection.save({
+                    _id: ObjectID(good.goodId),
+                    name: good.name,
+                    content: good.content,
+                    poster: good.poster,
+                    price: good.price,
+                    number: good.number,
+                    picture: good.picture,
+                    shopKind: good.shopKind,
+                    nickName: good.nickName,
+                    time: data.time,
+                    feature: good.feature
+                },function () {
+                    res.status(200).json({ "code": "1" })
+                });
             }
         });
     }
@@ -296,11 +291,19 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     nickName: buyerdata.nickName,
                                     name: buyerdata.name,
                                     gender: buyerdata.gender,
-                                    access: buyerdata.access,
                                     headimg: buyerdata.headimg,
                                     tel: buyerdata.tel,
                                     college: buyerdata.college,
-                                    scores: buyerdata.scores
+                                    access: buyerdata.access,
+                                    scores: buyerdata.scores,
+                                    lockedScores: buyerdata.lockedScores,
+                                    willGetScores: buyerdata.willGetScores,
+                                    community: buyerdata.community,
+                                    birthday: buyerdata.birthday,
+                                    IDcard: buyerdata.IDcard,
+                                    adress: buyerdata.adress,
+                                    QQ: buyerdata.QQ,
+                                    describe: buyerdata.describe
                                 }
         
                                 let m_score = parseInt(buyer.scores) - parseInt(data.price*confirm.buyNumber);
@@ -331,11 +334,19 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                             nickName: buyer.nickName,
                                             name: buyer.name,
                                             gender: buyer.gender,
-                                            access: buyer.access,
                                             headimg: buyer.headimg,
                                             tel: buyer.tel,
                                             college: buyer.college,
-                                            scores: buyer.scores
+                                            access: buyer.access,
+                                            scores: buyer.scores,
+                                            lockedScores: buyer.lockedScores,
+                                            willGetScores: buyer.willGetScores,
+                                            community: buyer.community,
+                                            birthday: buyer.birthday,
+                                            IDcard: buyer.IDcard,
+                                            adress: buyer.adress,
+                                            QQ: buyer.QQ,
+                                            describe: buyer.describe
                                         }, function () {
                                             if (data.shopKind == 1) {
                                                 collection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
@@ -347,27 +358,43 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             id: modelKeeperlData.id,
                                                             nickName: modelKeeperlData.nickName,
                                                             name: modelKeeperlData.name,
-                                                            gender: buyerdata.gender,
-                                                            access: modelKeeperlData.access,
+                                                            gender: modelKeeperlData.gender,
                                                             headimg: modelKeeperlData.headimg,
                                                             tel: modelKeeperlData.tel,
                                                             college: modelKeeperlData.college,
-                                                            scores: modelKeeperlData.scores
+                                                            access: modelKeeperlData.access,
+                                                            scores: modelKeeperlData.scores,
+                                                            lockedScores: modelKeeperlData.lockedScores,
+                                                            willGetScores: modelKeeperlData.willGetScores,
+                                                            community: modelKeeperlData.community,
+                                                            birthday: modelKeeperlData.birthday,
+                                                            IDcard: modelKeeperlData.IDcard,
+                                                            adress: modelKeeperlData.adress,
+                                                            QQ: modelKeeperlData.QQ,
+                                                            describe: modelKeeperlData.describe
                                                         }
                                 
                                                         let m_score = parseInt(modelKeeper.scores) + parseInt(data.price*confirm.buyNumber);
                                                         modelKeeper.scores = String(m_score);
                                                         collection.save({
-                                                            _id: ObjectID(modelKeeperlData._id),
-                                                            id: modelKeeperlData.id,
-                                                            nickName: modelKeeperlData.nickName,
-                                                            name: modelKeeperlData.name,
-                                                            gender: buyerdata.gender,
-                                                            access: modelKeeperlData.access,
-                                                            headimg: modelKeeperlData.headimg,
-                                                            tel: modelKeeperlData.tel,
-                                                            college: modelKeeperlData.college,
-                                                            scores: modelKeeperlData.scores
+                                                            _id: ObjectID(modelKeeper._id),
+                                                            id: modelKeeper.id,
+                                                            nickName: modelKeeper.nickName,
+                                                            name: modelKeeper.name,
+                                                            gender: modelKeeper.gender,
+                                                            headimg: modelKeeper.headimg,
+                                                            tel: modelKeeper.tel,
+                                                            college: modelKeeper.college,
+                                                            access: modelKeeper.access,
+                                                            scores: modelKeeper.scores,
+                                                            lockedScores: modelKeeper.lockedScores,
+                                                            willGetScores: modelKeeper.willGetScores,
+                                                            community: modelKeeper.community,
+                                                            birthday: modelKeeper.birthday,
+                                                            IDcard: modelKeeper.IDcard,
+                                                            adress: modelKeveperlData.adress,
+                                                            QQ: modelKeeper.QQ,
+                                                            describe: modelKeeper.describe
                                                         }, function () {
                                                             res.status(200).json({ "code": "1", "orderNumber": orderNumber })
                                                         })
@@ -419,11 +446,19 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                     nickName: buyerdata.nickName,
                                     name: buyerdata.name,
                                     gender: buyerdata.gender,
-                                    access: buyerdata.access,
                                     headimg: buyerdata.headimg,
                                     tel: buyerdata.tel,
                                     college: buyerdata.college,
-                                    scores: buyerdata.scores
+                                    access: buyerdata.access,
+                                    scores: buyerdata.scores,
+                                    lockedScores: buyerdata.lockedScores,
+                                    willGetScores: buyerdata.willGetScores,
+                                    community: buyerdata.community,
+                                    birthday: buyerdata.birthday,
+                                    IDcard: buyerdata.IDcard,
+                                    adress: buyerdata.adress,
+                                    QQ: buyerdata.QQ,
+                                    describe: buyerdata.describe
                                 }
         
                                 let m_score = parseInt(buyer.scores) - parseInt(data.price*confirm.buyNumber);
@@ -454,11 +489,19 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                             nickName: buyer.nickName,
                                             name: buyer.name,
                                             gender: buyer.gender,
-                                            access: buyer.access,
                                             headimg: buyer.headimg,
                                             tel: buyer.tel,
                                             college: buyer.college,
-                                            scores: buyer.scores
+                                            access: buyer.access,
+                                            scores: buyer.scores,
+                                            lockedScores: buyer.lockedScores,
+                                            willGetScores: buyer.willGetScores,
+                                            community: buyer.community,
+                                            birthday: buyer.birthday,
+                                            IDcard: buyer.IDcard,
+                                            adress: buyer.adress,
+                                            QQ: buyer.QQ,
+                                            describe: buyer.describe
                                         }, function () {
                                             if (data.shopKind == 1) {
                                                 collection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
@@ -470,27 +513,43 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                                             id: modelKeeperlData.id,
                                                             nickName: modelKeeperlData.nickName,
                                                             name: modelKeeperlData.name,
-                                                            gender: buyerdata.gender,
-                                                            access: modelKeeperlData.access,
+                                                            gender: modelKeeperlData.gender,
                                                             headimg: modelKeeperlData.headimg,
                                                             tel: modelKeeperlData.tel,
                                                             college: modelKeeperlData.college,
-                                                            scores: modelKeeperlData.scores
+                                                            access: modelKeeperlData.access,
+                                                            scores: modelKeeperlData.scores,
+                                                            lockedScores: modelKeeperlData.lockedScores,
+                                                            willGetScores: modelKeeperlData.willGetScores,
+                                                            community: modelKeeperlData.community,
+                                                            birthday: modelKeeperlData.birthday,
+                                                            IDcard: modelKeeperlData.IDcard,
+                                                            adress: modelKeeperlData.adress,
+                                                            QQ: modelKeeperlData.QQ,
+                                                            describe: modelKeeperlData.describe
                                                         }
                                 
                                                         let m_score = parseInt(modelKeeper.scores) + parseInt(data.price*confirm.buyNumber);
                                                         modelKeeper.scores = String(m_score);
                                                         collection.save({
-                                                            _id: ObjectID(modelKeeperlData._id),
-                                                            id: modelKeeperlData.id,
-                                                            nickName: modelKeeperlData.nickName,
-                                                            name: modelKeeperlData.name,
-                                                            gender: buyerdata.gender,
-                                                            access: modelKeeperlData.access,
-                                                            headimg: modelKeeperlData.headimg,
-                                                            tel: modelKeeperlData.tel,
-                                                            college: modelKeeperlData.college,
-                                                            scores: modelKeeperlData.scores
+                                                            _id: ObjectID(modelKeeper._id),
+                                                            id: modelKeeper.id,
+                                                            nickName: modelKeeper.nickName,
+                                                            name: modelKeeper.name,
+                                                            gender: modelKeeper.gender,
+                                                            headimg: modelKeeper.headimg,
+                                                            tel: modelKeeper.tel,
+                                                            college: modelKeeper.college,
+                                                            access: modelKeeper.access,
+                                                            scores: modelKeeper.scores,
+                                                            lockedScores: modelKeeper.lockedScores,
+                                                            willGetScores: modelKeeper.willGetScores,
+                                                            community: modelKeeper.community,
+                                                            birthday: modelKeeper.birthday,
+                                                            IDcard: modelKeeper.IDcard,
+                                                            adress: modelKeveperlData.adress,
+                                                            QQ: modelKeeper.QQ,
+                                                            describe: modelKeeper.describe
                                                         }, function () {
                                                             res.status(200).json({ "code": "1", "orderNumber": orderNumber })
                                                         })

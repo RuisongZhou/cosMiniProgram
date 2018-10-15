@@ -73,7 +73,12 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 		tel: req.body.tel,
 		college: req.body.college,
 		access: 0,
-		community: req.body.community
+		community: req.body.community,
+		birthday: req.body.birthday,
+		IDcard: req.body.IDcard,
+		adress: req.body.adress,
+		QQ: req.body.QQ,
+		describe: req.body.describe
 	}
 
 	//开始初始化数据库
@@ -94,7 +99,12 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 				scores: "0",
 				lockedScores: "0",
 				willGetScores: "0",
-				community: UsearData.community
+				community: UsearData.community,
+				birthday: req.body.birthday,
+				IDcard: req.body.IDcard,
+				adress: req.body.adress,
+				QQ: req.body.QQ,
+				describe: req.body.describe
 			}, function () {
 				status = 0;
 			})

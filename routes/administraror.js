@@ -242,7 +242,12 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 tel: userData.tel,
                                 college: userData.college,
                                 scores: userData.scores,
-                                community: userData.community
+                                community: UsearData.community,
+                                birthday: userData.birthday,
+                                IDcard: userData.IDcard,
+                                adress: userData.adress,
+                                QQ: userData.QQ,
+                                describe: userData.describe
                             }
                             toScores.scores = String(parseInt(toScores.scores) + parseInt(aDeal.score));
                 
@@ -258,8 +263,13 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                                 college: toScores.college,
                                 community: toScores.community,
                                 scores: toScores.scores,
-                                lockedScores: userData.lockedScores,
-                                willGetScores: userData.willGetScores
+                                lockedScores: toScores.lockedScores,
+                                willGetScores: toScores.willGetScores,
+                                birthday: toScores.birthday,
+                                IDcard: toScores.IDcard,
+                                adress: toScores.adress,
+                                QQ: toScores.QQ,
+                                describe: toScores.describe
                             });
                         }
                     });
@@ -425,7 +435,15 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
                 college: data.college,
                 community: data.community,
                 access: parseInt(access),
-                scores: data.scores
+                scores: data.scores,
+                lockedScores: data.lockedScores,
+				willGetScores: data.willGetScores,
+				community: data.community,
+				birthday: data.birthday,
+				IDcard: data.IDcard,
+				adress: data.adress,
+				QQ: data.QQ,
+				describe: data.describe
             },function () {
                 res.status(200).json({ "code": "1" })
             });
@@ -608,10 +626,10 @@ router.delete('/model/remove', urlencodedParser, async function (req, res, next)
     let collection = await informationDB.getCollection("SHOP");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "description": "not found" })
+            res.status(400).json({ "code":"-1","description": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
-                res.status(200).json({ "description": "delete success" });
+                res.status(200).json({ "code":"1","description": "delete success" });
                 });
         }
     });

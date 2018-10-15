@@ -43,7 +43,6 @@ router.post('/reward/add', urlencodedParser, async function (req, res, next) {
             }
             else {
                 accountCollection.save({
-                    _id: ObjectID(data._id),
                     id: data.id,
                     nickName: data.nickName,
                     name: data.name,
@@ -54,7 +53,13 @@ router.post('/reward/add', urlencodedParser, async function (req, res, next) {
                     access: data.access,
                     scores: String(parseInt(data.scores) - parseInt(reward.price)),
                     lockedScores: String(parseInt(data.lockedScores) + parseInt(reward.price)),
-                    willGetScores: data.willGetScores
+                    willGetScores: data.willGetScores,
+                    community: data.community,
+                    birthday: data.birthday,
+                    IDcard: data.IDcard,
+                    adress: data.adress,
+                    QQ: data.QQ,
+                    describe: data.describe
                 })
 
                 collection.insertOne({
@@ -167,7 +172,6 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
             }, function () {
                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                     accountCollection.save({
-                        _id: ObjectID(userData._id),
                         id: userData.id,
                         nickName: userData.nickName,
                         name: userData.name,
@@ -178,7 +182,13 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                         access: userData.access,
                         scores: userData.scores,
                         lockedScores: userData.lockedScores,
-                        willGetScores: String(parseInt(userData.willGetScores) + parseInt(data.reward.price))
+                        willGetScores: String(parseInt(userData.willGetScores) + parseInt(data.reward.price)),
+                        community: userData.community,
+                        birthday: userData.birthday,
+                        IDcard: userData.IDcard,
+                        adress: userData.adress,
+                        QQ: userData.QQ,
+                        describe: userData.describe
                     })
                 })
                 
@@ -286,7 +296,13 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                         access: userData.access,
                                         scores: String(parseInt(userData.scores) + parseInt(data.reward.price)),
                                         lockedScores: userData.lockedScores,
-                                        willGetScores: String(parseInt(userData.willGetScores) - parseInt(data.reward.price))
+                                        willGetScores: String(parseInt(userData.willGetScores) - parseInt(data.reward.price)),
+                                        community: userData.community,
+                                        birthday: userData.birthday,
+                                        IDcard: userData.IDcard,
+                                        adress: userData.adress,
+                                        QQ: userData.QQ,
+                                        describe: userData.describe
                                     })
                                 })
 
@@ -303,7 +319,13 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                         access: userData.access,
                                         scores: userData.scores,
                                         lockedScores: String(parseInt(userData.lockedScores) - parseInt(data.reward.price)),
-                                        willGetScores: userData.willGetScores
+                                        willGetScores: userData.willGetScores,
+                                        community: userData.community,
+                                        birthday: userData.birthday,
+                                        IDcard: userData.IDcard,
+                                        adress: userData.adress,
+                                        QQ: userData.QQ,
+                                        describe: userData.describe
                                     })
                                 }),
 
@@ -399,7 +421,13 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                         access: userData.access,
                                         scores: String(parseInt(userData.scores) + parseInt(data.reward.price)),
                                         lockedScores: userData.lockedScores,
-                                        willGetScores: String(parseInt(userData.willGetScores) - parseInt(data.reward.price))
+                                        willGetScores: String(parseInt(userData.willGetScores) - parseInt(data.reward.price)),
+                                        community: userData.community,
+                                        birthday: userData.birthday,
+                                        IDcard: userData.IDcard,
+                                        adress: userData.adress,
+                                        QQ: userData.QQ,
+                                        describe: userData.describe
                                     })
                                 })
 
@@ -416,7 +444,13 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                         access: userData.access,
                                         scores: userData.scores,
                                         lockedScores: String(parseInt(userData.lockedScores) - parseInt(data.reward.price)),
-                                        willGetScores: userData.willGetScores
+                                        willGetScores: userData.willGetScores,
+                                        community: userData.community,
+                                        birthday: userData.birthday,
+                                        IDcard: userData.IDcard,
+                                        adress: userData.adress,
+                                        QQ: userData.QQ,
+                                        describe: userData.describe
                                     })
                                 })
 
