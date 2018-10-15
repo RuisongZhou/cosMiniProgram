@@ -43,6 +43,7 @@ router.post('/reward/add', urlencodedParser, async function (req, res, next) {
             }
             else {
                 accountCollection.save({
+                    _id: ObjectID(data._id),
                     id: data.id,
                     nickName: data.nickName,
                     name: data.name,
@@ -513,7 +514,7 @@ router.get('/reward/level', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("REWARD");
     collection.find({level: params.level}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
-            "rewards": data
+            "rewards": data[0]
         });
     });
 });
