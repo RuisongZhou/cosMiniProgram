@@ -91,7 +91,7 @@ router.post('/reward/pick', urlencodedParser, async function (req, res, next) {
         describe: req.body.describe
     }
 
-    console.log(rewardPick);
+    console.log(req.body);
 
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let rewardCollection = await informationDB.getCollection("REWARD");
