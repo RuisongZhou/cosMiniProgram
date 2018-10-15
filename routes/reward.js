@@ -480,6 +480,20 @@ router.get('/reward', urlencodedParser, async function (req, res, next) {
     });
 });
 
+// 获取我的悬赏
+router.get('/reward/getById', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+	let collection = await informationDB.getCollection("REWARD");
+    collection.find({_id: ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, data) {
+        res.status(200).json({
+            "reward": data
+        });
+    });
+});
+
+
+
 // 获取我的任务
 router.get('/reward/confirm', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
