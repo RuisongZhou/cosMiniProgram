@@ -168,7 +168,7 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                 else {
                     collection.find({"reward._id": ObjectID(rewardData._id)}).forEach(
                         function(item){
-                            if (item._id != data._id) {
+                            if (String(item._id) != String(data._id)) {
                                 collection.update({_id: ObjectID(item._id)},{$set: {status: "-1"}, });
                             }         
                         }
