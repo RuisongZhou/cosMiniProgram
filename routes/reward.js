@@ -205,6 +205,7 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
             }, function () {
                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                     accountCollection.save({
+                        _id: ObjectID(userData._id),
                         id: userData.id,
                         nickName: userData.nickName,
                         name: userData.name,
