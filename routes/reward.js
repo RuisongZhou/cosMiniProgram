@@ -270,7 +270,7 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
 
                 //发布消息
                 newsCollection.insertOne({
-                    toId: rewardData.poster.id,
+                    toId: data.reward.poster.id,
                     poster: data.picker,
                     read: "0",
                     option: "悬赏评价",
@@ -396,7 +396,7 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                     //发布消息
                     newsCollection.insertOne({
                         toId: data.picker.id,
-                        poster: rewardData.poster,
+                        poster: data.reward.poster,
                         read: "0",
                         option: "悬赏评价",
                         content: poster.posterComment,
