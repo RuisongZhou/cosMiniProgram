@@ -169,7 +169,7 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                     collection.find({"reward._id": ObjectID(rewardData._id)}).forEach(
                         function(item){                
                             // console.log(item)
-                            collection.update({_id: ObjectID(item._id)},{$set: {status: "-1"}});
+                            collection.update({_id: ObjectID(item._id)},{$set: {status: "-1"}, });
                         }
                     )
 
@@ -524,10 +524,14 @@ router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res,
 router.get('/reward/getConfirmById', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("REWARDCONFIRM");
+    let collection = await informationDB.getCollection("REWARDCONFIRM");
+    let rewardCollection = await informationDB.getCollection("REWARD");
     collection.find({"reward._id": ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, data) {
-        res.status(200).json({
-            "rewardConfirm": data
+        collection.find({_id: ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, rewardData) {
+            res.status(200).json({
+                "reward": rewardData,
+                "rewardConfirm": data
+            });
         });
     });
 });
