@@ -14,6 +14,8 @@ var blogs = require('./routes/blogs');
 var administraror = require('./routes/administraror');
 var qiniu = require('./routes/qiniu');
 var reward = require('./routes/reward');
+var activity = require('./routes/activity');
+
 
 
 var app = express();
@@ -39,6 +41,7 @@ app.use('/', blogs);
 app.use('/', administraror);
 app.use('/', qiniu);
 app.use('/', reward);
+app.use('/', activity);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

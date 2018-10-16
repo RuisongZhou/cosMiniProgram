@@ -251,7 +251,8 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                         read: "0",
                         option: "购买商品",
                         content: "购买商品",
-                        time: getDate()
+                        time: getDate(),
+                        details: data
                     })
                 }
             })

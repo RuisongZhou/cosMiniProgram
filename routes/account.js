@@ -166,7 +166,8 @@ router.post('/news/read', urlencodedParser, async function (req, res, next) {
                 read: "1",
                 option: newsData.option,
                 content: newsData.content,
-                time: newsData.time
+				time: newsData.time,
+				details: newsData.details
             }, function () {
                 res.status(200).json({ "code": "1" });
             })

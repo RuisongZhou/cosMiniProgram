@@ -346,7 +346,8 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 										read: "0",
 										option: "回复",
 										content: replyBlog.content,
-										time: getDate()
+										time: getDate(),
+										details: data
 									}, function () {
 										res.status(200).json({ "code": "1" });
 									})
@@ -428,9 +429,10 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 								toId: data.poster.id,
 								poster: userData,
 								read: "0",
-								option: "点赞",
-								content: "点赞",
-								time: getDate()
+								option: "点赞发帖",
+								content: "点赞发帖",
+								time: getDate(),
+								details: data
 							}, function () {
 								res.status(200).json({ "code": "1" });
 							})
@@ -472,7 +474,25 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 					likePicture: likePicture,
 					likenumber: likenumber
 				}, function () {
-					res.status(200).json({ "code": "1" });
+					//发送消息
+					accountCollection.findOne({ id: likeBlog.id }, function (err, userData) {
+						if (!userData) {
+							res.status(200).json({ "code": "-1" , "msg": "查无此人"});
+						}
+						else {
+							newsCollection.insertOne({
+								toId: data.poster.id,
+								poster: userData,
+								read: "0",
+								option: "点赞回帖",
+								content: "点赞回帖",
+								time: getDate(),
+								details: data
+							}, function () {
+								res.status(200).json({ "code": "1" });
+							})
+						}
+					})
 				})
 			}
 			else {

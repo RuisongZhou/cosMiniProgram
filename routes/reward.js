@@ -131,7 +131,8 @@ router.post('/reward/pick', urlencodedParser, async function (req, res, next) {
                             read: "0",
                             option: "接受悬赏",
                             content: rewardPick.describe,
-                            time: getDate()
+                            time: getDate(),
+                            details: rewardData
                         }, function () {
                             res.status(200).json({ "code": "1" });
                         })
@@ -292,7 +293,8 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                     read: "0",
                                     option: "悬赏评价",
                                     content: picker.pickerComment,
-                                    time: getDate()
+                                    time: getDate(),
+                                    details: rewardData
                                 })
 
                                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
@@ -415,7 +417,8 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                     read: "0",
                                     option: "悬赏评价",
                                     content: poster.posterComment,
-                                    time: getDate()
+                                    time: getDate(),
+                                    details: rewardData
                                 })
 
                                                                 

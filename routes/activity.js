@@ -23,7 +23,8 @@ router.post('/activity/add', urlencodedParser, async function (req, res, next) {
         theme: req.body.theme,
         content: req.body.content,
         picture: req.body.picture,
-        ddl: req.body.ddl
+        ddl: req.body.ddl,
+        place: req.body.place
     }
 
     console.log(activity);
@@ -41,9 +42,13 @@ router.post('/activity/add', urlencodedParser, async function (req, res, next) {
                 theme: activity.theme,
                 content: activity.content,
                 picture: activity.picture,
-                ddl: reward.ddl,
+                ddl: activity.ddl,
+                place: activity.place,
                 status: "0",
-                time: getDate()
+                time: getDate(),
+                comment: [],
+                headImgs: [],
+                participantNums: 0
             }, function () {
                 res.status(200).json({ "code": "1" });
             })
@@ -51,6 +56,44 @@ router.post('/activity/add', urlencodedParser, async function (req, res, next) {
     })
 
 });
+
+//报名活动
+router.post('/activity/partIn', urlencodedParser, async function (req, res, next) {
+    let activity = {
+        ParticipantId: req.body.ParticipantId,
+        activityId: req.body.activityId
+    }
+
+    console.log(activity);
+
+    let collection = await informationDB.getCollection("ACTIVITYCONFIRM");
+    let activityCollection = await informationDB.getCollection("ACTIVITY");
+    let accountCollection = await informationDB.getCollection("ACCOUNT");
+    
+    accountCollection.findOne({ id: activity.ParticipantId }, function (err, data) {
+        if (!data) {
+            res.status(200).json({ "code": "-1" ,"msg": "没有此用户"});
+        }
+        else {
+            activityCollection.find({_id: ObjectID(activity.activityId)}).sort(['_id', -1]).toArray(function (err, activityData) {
+                let NewparticipantNums = activityData[0].participantNums +1;
+                let NewHeadImgs = activityData[0].headImgs;
+                NewHeadImgs.push(data.headimg);
+                activityCollection.update({_id: ObjectID(activity.activityId)},{$set:{headImgs: NewHeadImgs,participantNums: NewparticipantNums}});
+            });
+            
+                collection.insertOne({
+                    activityId: activity.activityId,
+                    Participant: data
+                }, function () {
+                    res.status(200).json({ "code": "1" });
+                })
+            }
+    })
+});
+
+
+
 
 // 获取活动列表
 router.get('/activity/list', urlencodedParser, async function (req, res, next) {
