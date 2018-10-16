@@ -30,9 +30,9 @@ router.post('/activity/add', urlencodedParser, async function (req, res, next) {
     console.log(activity);
 
     let collection = await informationDB.getCollection("ACTIVITY");
-    let accountCollection = await informationDB.getCollection("ACCOUNT");
+    let accountCollection = await informationDB.getCollection("ADMINISTORATOR");
     
-    accountCollection.findOne({ id: activity.posterId }, function (err, data) {
+    accountCollection.findOne({ username: activity.posterId }, function (err, data) {
         if (!data) {
             res.status(200).json({ "code": "-1" ,"msg": "没有此用户"});
         }
@@ -51,7 +51,7 @@ router.post('/activity/add', urlencodedParser, async function (req, res, next) {
             }, function () {
                 res.status(200).json({ "code": "1" });
             })
-            }
+        }
     })
 
 });
@@ -210,6 +210,7 @@ router.post('/activity/reply', urlencodedParser, async function (req, res, next)
                     activityId: replyActivity.activityId,
                     poster: data,
                     content: replyActivity.content,
+                    time: getDate()
                 }, function () {
                     res.status(200).json({ "code": "1" });
                 })
@@ -254,7 +255,6 @@ router.get('/activity/list', urlencodedParser, async function (req, res, next) {
 });
 
 // 获取某活动评论
-
 router.get('/activity/getReply', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
