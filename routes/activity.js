@@ -74,19 +74,38 @@ router.post('/activity/partIn', urlencodedParser, async function (req, res, next
             res.status(200).json({ "code": "-1" ,"msg": "没有此用户"});
         }
         else {
-            activityCollection.find({_id: ObjectID(activity.activityId)}).sort(['_id', -1]).toArray(function (err, activityData) {
-                let NewparticipantNums = activityData[0].participantNums +1;
-                let NewHeadImgs = activityData[0].headImgs;
-                NewHeadImgs.push(data.headimg);
-                activityCollection.update({_id: ObjectID(activity.activityId)},{$set:{headImgs: NewHeadImgs,participantNums: NewparticipantNums}});
-            });
-            
-                collection.insertOne({
-                    activityId: activity.activityId,
-                    Participant: data
-                }, function () {
-                    res.status(200).json({ "code": "1" });
-                })
+            collection.find({"participant.id": activity.ParticipantId}).sort(['_id', -1]).toArray(function (err, userData) {
+                if (!userData[0]) {
+                    activityCollection.find({_id: ObjectID(activity.activityId)}).sort(['_id', -1]).toArray(function (err, activityData) {
+                        if (!activityData[0]) {
+                            res.status(200).json({ "code": "-1" ,"msg": "没有此活动"});
+                        }
+                        else {
+                            if (activityData[0].status == "1") {
+                                let NewparticipantNums = activityData[0].participantNums +1;
+                                let NewHeadImgs = activityData[0].headImgs;
+                                NewHeadImgs.push(data.headimg);
+                                activityCollection.update({_id: ObjectID(activity.activityId)},{$set:{headImgs: NewHeadImgs,participantNums: NewparticipantNums}});
+
+                                collection.insertOne({
+                                    activityId: activity.activityId,
+                                    participant: data
+                                }, function () {
+                                    res.status(200).json({ "code": "1" });
+                                })
+                            } 
+                            else {
+                                res.status(200).json({ "code": "-1" ,"msg": "活动结束"});
+                            }
+                        }
+                    });
+                    
+                }
+                else {
+                    res.status(200).json({ "code": "1" ,"msg": "已报名过了"});
+                }
+
+            })
             }
     })
 });
@@ -120,7 +139,7 @@ router.get('/activity/stopOrNot', urlencodedParser, async function (req, res, ne
 	console.log(params);
     let activityCollection = await informationDB.getCollection("ACTIVITY");
 
-    activityCollection.find({_id: ObjectID(activity.activityId)}).sort(['_id', -1]).toArray(function (err, activityData) {
+    activityCollection.find({_id: ObjectID(params.activityId)}).sort(['_id', -1]).toArray(function (err, activityData) {
         if (!activityData) {
             res.status(200).json({ "code": "-1","msg": "没有此活动" });
         }
@@ -167,6 +186,7 @@ router.get('/activity/list', urlencodedParser, async function (req, res, next) {
         });
     });
 });
+
 
 //评论活动
 router.post('/activity/reply', urlencodedParser, async function (req, res, next) {

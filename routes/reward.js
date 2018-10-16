@@ -273,7 +273,7 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                     toId: data.reward.poster.id,
                     poster: data.picker,
                     read: "0",
-                    option: "悬赏评价",
+                    option: "任务评价",
                     content: picker.pickerComment,
                     time: getDate(),
                     details: data
@@ -398,7 +398,7 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                         toId: data.picker.id,
                         poster: data.reward.poster,
                         read: "0",
-                        option: "悬赏评价",
+                        option: "服务评价",
                         content: poster.posterComment,
                         time: getDate(),
                         details: data
