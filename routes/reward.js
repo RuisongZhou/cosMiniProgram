@@ -512,7 +512,7 @@ router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res,
     var todoConfirm = [];
     collection.find({"picker.id": params.id, status: "0"}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
-            "reward": data
+            "rewards": data
         });
     });
 });
