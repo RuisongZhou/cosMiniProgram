@@ -519,6 +519,18 @@ router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res,
     });
 });
 
+// 获取我的已被审核任务
+router.get('/reward/checkedConfirm', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+    let collection = await informationDB.getCollection("REWARDCONFIRM");
+    collection.find({"picker.id": params.id, status: "1"}).sort(['_id', -1]).toArray(function (err, data) {
+        res.status(200).json({
+            "rewards": data
+        });
+    });
+});
+
 // 获取confirmId获取confirm信息
 router.get('/reward/confirm', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
@@ -561,6 +573,33 @@ router.get('/reward/level', urlencodedParser, async function (req, res, next) {
         });
     });
 });
+
+// 判断此人有没有领取过此悬赏
+router.get('/reward/pickOrNot', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+    let collection = await informationDB.getCollection("REWARDCONFIRM");
+    let accountCollection = await informationDB.getCollection("ACCOUNT");
+    collection.find({"reward._id": params.rewarId}).sort(['_id', -1]).toArray(function (err, data) {
+        let status = 0;
+        for (var i = 0; i< data.length; ++i) {
+            if (data.picker.id == params.id) {
+                status = 1;
+            }
+        }
+        if (status == 1) {
+            res.status(200).json({
+                "status": 1
+            });
+        }
+        else {
+            res.status(200).json({
+                "status": -1
+            });
+        }
+    });
+});
+
 
 
 function getDate(){
