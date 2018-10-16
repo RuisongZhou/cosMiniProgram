@@ -527,9 +527,9 @@ router.get('/reward/getConfirmById', urlencodedParser, async function (req, res,
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let rewardCollection = await informationDB.getCollection("REWARD");
     collection.find({"reward._id": ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, data) {
-        collection.find({_id: ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, rewardData) {
+        rewardCollection.find({_id: ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, rewardData) {
             res.status(200).json({
-                "reward": rewardData,
+                "reward": rewardData[0],
                 "rewardConfirm": data
             });
         });
