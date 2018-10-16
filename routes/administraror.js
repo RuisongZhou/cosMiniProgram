@@ -692,7 +692,7 @@ router.post('/blogs/top', urlencodedParser, async function (req, res, next) {
         if (!data) {
             res.status(400).json({ "code": "-1" })
         } else {
-            confirmCollection.save({
+            collection.save({
                 _id: ObjectID(data._id),
                 theme: data.theme,
                 content: data.content,
@@ -722,7 +722,7 @@ router.post('/blogs/essence', urlencodedParser, async function (req, res, next) 
         if (!data) {
             res.status(400).json({ "code": "-1" })
         } else {
-            confirmCollection.save({
+            collection.save({
                 _id: ObjectID(data._id),
                 theme: data.theme,
                 content: data.content,
