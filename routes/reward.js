@@ -170,7 +170,7 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                     collection.find({"reward._id": ObjectID(rewardData._id)}).forEach(
                         function(item){
                             if (String(item._id) != String(data._id)) {
-                                collection.update({_id: ObjectID(item._id)},{$set: {status: "-1"}, });
+                                collection.update({_id: ObjectID(item._id)},{$set: {status: "-1","reward.status": "1"}});
                             }         
                         }
                     )
@@ -267,6 +267,18 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                     posterComment: data.comment.posterComment
                 }
             }, function () {
+
+                //发布消息
+                newsCollection.insertOne({
+                    toId: rewardData.poster.id,
+                    poster: data.picker,
+                    read: "0",
+                    option: "悬赏评价",
+                    content: picker.pickerComment,
+                    time: getDate(),
+                    details: data
+                })
+
                 if (data.completed.posterComplete == "1") {
                     rewardCollection.findOne({ _id: ObjectID(data.reward._id) }, function (err, rewardData) {
                         if (!rewardData) {
@@ -286,16 +298,6 @@ router.post('/reward/pickerComplete', urlencodedParser, async function (req, res
                                 completed: "1",
                                 time: rewardData.time
                             }, function () {
-                                //发布消息
-                                newsCollection.insertOne({
-                                    toId: rewardData.poster.id,
-                                    poster: data.picker,
-                                    read: "0",
-                                    option: "悬赏评价",
-                                    content: picker.pickerComment,
-                                    time: getDate(),
-                                    details: rewardData
-                                })
 
                                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                                     accountCollection.save({
@@ -390,6 +392,18 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                     posterComment: poster.posterComment
                 }
             }, function () {
+
+                    //发布消息
+                    newsCollection.insertOne({
+                        toId: data.picker.id,
+                        poster: rewardData.poster,
+                        read: "0",
+                        option: "悬赏评价",
+                        content: poster.posterComment,
+                        time: getDate(),
+                        details: data
+                    })
+
                 if (data.completed.pickerComplete == "1") {
                     rewardCollection.findOne({ _id: ObjectID(data.reward._id) }, function (err, rewardData) {
                         if (!rewardData) {
@@ -410,18 +424,7 @@ router.post('/reward/posterComplete', urlencodedParser, async function (req, res
                                 completed: "1",
                                 time: rewardData.time
                             }, function () {
-                                //发布消息
-                                newsCollection.insertOne({
-                                    toId: data.picker.id,
-                                    poster: rewardData.poster,
-                                    read: "0",
-                                    option: "悬赏评价",
-                                    content: poster.posterComment,
-                                    time: getDate(),
-                                    details: rewardData
-                                })
-
-                                                                
+                                                        
                                 accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
                                     console.log(userData)
                                     accountCollection.save({

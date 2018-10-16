@@ -57,7 +57,7 @@ router.get('/account/id', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("ACCOUNT");
 	collection.findOne({ name: params.name }, function (err, data) {
 		if (!data) {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "code": "-1" })
 		} else {
 			res.status(200).json({
 				id: data.id
@@ -142,7 +142,7 @@ router.post('/account', urlencodedParser, async function (req, res, next) {
 		res.status(200).json({ "code": "1" });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 
 

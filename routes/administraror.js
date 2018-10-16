@@ -103,7 +103,7 @@ router.get('/administorator', urlencodedParser, async function (req, res, next) 
             });
 		}
 		else {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "code": "-1" })
 		}
 	});
 });
@@ -127,7 +127,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
 	//在发送人积分表中加入数据
 	adminCollection.findOne({ username: aDeal.sender }, function (err, data) {
 		if (!data) {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "code": "-1" })
 		} else {
 			let senderScores = {
                 _id: data._id,
@@ -191,7 +191,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                     adminCollection.findOne({ username: aDeal.to }, function (err, acceptData) {
                         if (!acceptData) {
                             console.log(acceptData)
-                            res.status(400).json({ "code": "-1" })
+                            res.status(200).json({ "code": "-1" })
                         } else {
                             let toScores = {
                                 _id: data._id,
@@ -229,7 +229,7 @@ router.post('/user/edit', urlencodedParser, async function (req, res, next) {
                 else if (aDeal.acceptPermission == "1") {
                     collection.findOne({ id: aDeal.to }, function (err, userData) {
                         if (!userData) {
-                            res.status(400).json({ "code": "-1" })
+                            res.status(200).json({ "code": "-1" })
                         } else {
                             let toScores = {
                                 _id: userData._id,
@@ -350,6 +350,7 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
 
     //开始初始化数据库
     console.log(UsearData)
+    let communityCollection = await informationDB.getCollection("COMMUNITY");
     let collection = await informationDB.getCollection("ADMINISTORATOR");
 
     if (UsearData.username == "adminroot") {
@@ -372,7 +373,11 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 college: UsearData.college,  //新加，大学
                 IDcard: UsearData.IDcard,    //新加，身份证号
 			}, function () {
-                res.status(200).json({ "code": "200" });
+                communityCollection.insertOne({
+                    communityName: UsearData.community
+                },function() {
+                    res.status(200).json({ "code": "200" });
+                })
 			})
 		}
 		else {
@@ -394,7 +399,7 @@ router.post('/admin/register', urlencodedParser, async function (req, res, next)
     let collection = await informationDB.getCollection("ADMINISTORATOR");
     collection.findOne({ username: username }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code": "-1" })
+            res.status(200).json({ "code": "-1" })
         } else {
 
             collection.save({
@@ -426,7 +431,7 @@ router.post('/user/register', urlencodedParser, async function (req, res, next) 
     let collection = await informationDB.getCollection("ACCOUNT");
     collection.findOne({ id: Id }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code": "-1" })
+            res.status(200).json({ "code": "-1" })
         } else {
             collection.save({
                 _id: ObjectID(data._id),
@@ -533,7 +538,7 @@ router.get('/admin/list', urlencodedParser, async function (req, res, next) {
             }
         }
         else {
-            res.status(400).json({ "code": "-1" });
+            res.status(200).json({ "code": "-1" });
         }
     });
 
@@ -548,7 +553,7 @@ router.delete('/admin/remove', urlencodedParser, async function (req, res, next)
     let collection = await informationDB.getCollection("ADMINISTORATOR");
     collection.findOne({ username: username }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code":"0","description": "not found" })
+            res.status(200).json({ "code":"0","description": "not found" })
         } else {
             collection.remove({username: username},function () {
                 res.status(200).json({ "code":"1", "description": "delete success" });
@@ -567,7 +572,7 @@ router.delete('/user/remove', urlencodedParser, async function (req, res, next) 
     let collection = await informationDB.getCollection("ACCOUNT");
     collection.findOne({ id: Id }, function (err, data) {
         if (!data) {
-            res.status(400).json({"code":"0", "description": "not found" })
+            res.status(200).json({"code":"0", "description": "not found" })
         } else {
             collection.remove({id: Id},function () {
                 res.status(200).json({ "code":"1" , "description": "delete success" });
@@ -630,7 +635,7 @@ router.delete('/model/remove', urlencodedParser, async function (req, res, next)
     let collection = await informationDB.getCollection("SHOP");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code":"-1","description": "not found" })
+            res.status(200).json({ "code":"-1","description": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
                 res.status(200).json({ "code":"1","description": "delete success" });
@@ -690,7 +695,7 @@ router.post('/blogs/top', urlencodedParser, async function (req, res, next) {
     let collection = await informationDB.getCollection("POSTBLOGS");
     collection.findOne({_id: ObjectID(Id)}, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code": "-1" })
+            res.status(200).json({ "code": "-1" })
         } else {
             collection.save({
                 _id: ObjectID(data._id),
@@ -720,7 +725,7 @@ router.post('/blogs/essence', urlencodedParser, async function (req, res, next) 
     let collection = await informationDB.getCollection("POSTBLOGS");
     collection.findOne({_id: ObjectID(Id)}, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code": "-1" })
+            res.status(200).json({ "code": "-1" })
         } else {
             collection.save({
                 _id: ObjectID(data._id),
@@ -753,7 +758,7 @@ router.post('/model/confirm', urlencodedParser, async function (req, res, next) 
     let confirmCollection = await informationDB.getCollection("CONFIRMLIST");
     confirmCollection.findOne({orderNumber: orderNumber}, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code": "-1" })
+            res.status(200).json({ "code": "-1" })
         } else {
             confirmCollection.save({
                 _id: ObjectID(data._id),
@@ -788,5 +793,20 @@ function getDate(){
 
     return nowDateArray ;
 }
+
+
+//　查看社团
+router.get('/community', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+    let communityCollection = await informationDB.getCollection("COMMUNITY");
+    communityCollection.find().sort(['_id', -1]).toArray(function (err, data) {
+        // console.log(data);
+        res.status(200).json({
+            "community": data
+        });
+    });
+});
+
 
 module.exports = router;

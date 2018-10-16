@@ -29,7 +29,7 @@ router.get('/shop', urlencodedParser, async function (req, res, next) {
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -47,7 +47,7 @@ router.get('/shop/getById', urlencodedParser, async function (req, res, next) {
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -61,7 +61,7 @@ router.get('/user/model', urlencodedParser, async function (req, res, next) {
 		if (data) {
             confirmCollection.find({ "model.poster": params.id }).sort(['_id', 1]).toArray(function (err, confirmData) {
 				if (!confirmData) {
-					res.status(400).json({ "code": "-1" })
+					res.status(200).json({ "code": "-1" })
 				} else {
 					res.status(200).json({
                         "model": data,
@@ -71,7 +71,7 @@ router.get('/user/model', urlencodedParser, async function (req, res, next) {
 			});
 		}
 		else {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "code": "-1" })
 		}
 
 	});
@@ -127,7 +127,7 @@ router.post('/shop/add', urlencodedParser, async function (req, res, next) {
         })
     }
     else {
-        res.status(400).json({ "code": "-1" });
+        res.status(200).json({ "code": "-1" });
     }
 });
 
@@ -144,7 +144,7 @@ router.post('/shop/delete', urlencodedParser, async function (req, res, next) {
         let collection = await informationDB.getCollection("SHOP");
         collection.findOne({ _id: ObjectID(good.goodId) }, function (err, data) {
             if (!data) {
-                res.status(400).json({ "code": "-1" })
+                res.status(200).json({ "code": "-1" })
             } else {
                 if (good.id != data.poster) {
                     res.status(200).json({ "code": "-2" })
@@ -158,7 +158,7 @@ router.post('/shop/delete', urlencodedParser, async function (req, res, next) {
         });
     }
     else {
-        res.status(400).json({ "code": "-1" });
+        res.status(200).json({ "code": "-1" });
     }
 });
 
@@ -182,7 +182,7 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         let collection = await informationDB.getCollection("SHOP");
         collection.findOne({ _id: ObjectID(good.goodId) }, function (err, data) {
             if (!data) {
-                res.status(400).json({ "code": "-1" })
+                res.status(200).json({ "code": "-1" })
             } else {
                 collection.save({
                     _id: ObjectID(good.goodId),
@@ -203,7 +203,7 @@ router.post('/shop/change', urlencodedParser, async function (req, res, next) {
         });
     }
     else {
-        res.status(400).json({ "code": "-1" });
+        res.status(200).json({ "code": "-1" });
     }
 });
 
@@ -236,7 +236,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
     
     shopCollection.findOne({ _id: ObjectID(confirm.modelId) }, function (err, data) {
 		if (!data) {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "code": "-1" })
 		} else {
             console.log(data)
             //发送消息
@@ -282,7 +282,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                         // console.log(data)
                         collection.findOne({ id: confirm.buyer }, function (err, buyerdata) {
                             if (!data) {
-                                res.status(400).json({ "code": "-1" })
+                                res.status(200).json({ "code": "-1" })
                             } else {
                                 let buyer = {
                                     _id: buyerdata._id,
@@ -350,7 +350,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                             if (data.shopKind == 1) {
                                                 collection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
                                                     if (!modelKeeperlData) {
-                                                        res.status(400).json({ "code": "-1" })
+                                                        res.status(200).json({ "code": "-1" })
                                                     } else {
                                                         let modelKeeper = {
                                                             _id: modelKeeperlData._id,
@@ -437,7 +437,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                         // console.log(data)
                         collection.findOne({ id: confirm.buyer }, function (err, buyerdata) {
                             if (!data) {
-                                res.status(400).json({ "code": "-1" })
+                                res.status(200).json({ "code": "-1" })
                             } else {
                                 let buyer = {
                                     _id: buyerdata._id,
@@ -505,7 +505,7 @@ router.post('/shop/buy', urlencodedParser, async function (req, res, next) {
                                             if (data.shopKind == 1) {
                                                 collection.findOne({ id: data.poster }, function (err, modelKeeperlData) {
                                                     if (!modelKeeperlData) {
-                                                        res.status(400).json({ "code": "-1" })
+                                                        res.status(200).json({ "code": "-1" })
                                                     } else {
                                                         let modelKeeper = {
                                                             _id: modelKeeperlData._id,

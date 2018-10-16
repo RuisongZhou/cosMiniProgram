@@ -31,7 +31,7 @@ router.get('/sign', urlencodedParser, async function (req, res, next) {
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -124,7 +124,7 @@ router.post('/sign', urlencodedParser, async function (req, res, next) {
         });
     }
     else {
-	    res.status(400).json({ "code": "-1" });
+	    res.status(200).json({ "code": "-1" });
     }
 
 });

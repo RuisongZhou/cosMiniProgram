@@ -31,7 +31,7 @@ router.get('/postblogs', urlencodedParser, async function (req, res, next) {
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -50,7 +50,7 @@ router.get('/postblogs/top', urlencodedParser, async function (req, res, next) {
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -69,7 +69,7 @@ router.get('/postblogs/essence', urlencodedParser, async function (req, res, nex
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -89,7 +89,7 @@ router.get('/user/postblogs', urlencodedParser, async function (req, res, next) 
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -108,7 +108,7 @@ router.get('/boards', urlencodedParser, async function (req, res, next) {
         });
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -134,7 +134,7 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 		// let page = parseInt(params.page);
 
 		if (!params.themeId) {
-			res.status(400).json({ "code": "-1" });
+			res.status(200).json({ "code": "-1" });
 		}
 		else {
 			collection.find({themeId: params.themeId}).sort(['_id', -1]).toArray(function (err, replydata) {
@@ -148,7 +148,7 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 		}
 	}
 	else {
-		res.status(400).json({ "code": "-1" });
+		res.status(200).json({ "code": "-1" });
 	}
 });
 
@@ -188,7 +188,7 @@ router.post('/board/edit', urlencodedParser, async function (req, res, next) {
 	let collection = await informationDB.getCollection("BOARDS");
 	collection.findOne({ _id: ObjectID(board._id) }, function (err, data) {
 		if (!data) {
-			res.status(400).json({ "code": "-1" })
+			res.status(200).json({ "code": "-1" })
 		} else {
 			collection.save({
 				_id: ObjectID(data._id),
@@ -212,7 +212,7 @@ router.post('/board/remove', urlencodedParser, async function (req, res, next) {
     let collection = await informationDB.getCollection("BOARDS");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({ "code":"0","msg": "not found" })
+            res.status(200).json({ "code":"0","msg": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
                 res.status(200).json({  "code":"1", "msg": "delete success" });
@@ -231,7 +231,7 @@ router.delete('/postblogs/delete', urlencodedParser, async function (req, res, n
     let collection = await informationDB.getCollection("POSTBLOGS");
     collection.findOne({ _id: ObjectID(Id) }, function (err, data) {
         if (!data) {
-            res.status(400).json({"code":"0", "msg": "not found" })
+            res.status(200).json({"code":"0", "msg": "not found" })
         } else {
             collection.remove({_id: ObjectID(Id)},function () {
                 res.status(200).json({ "code":"1","msg": "delete success" });
@@ -356,13 +356,12 @@ router.post('/replyblogs', urlencodedParser, async function (req, res, next) {
 						})
 					}
 					else {
-						res.status(400).json({ "code": "-1" });
+						res.status(200).json({ "code": "-1" });
 					}
 				});
 			});
 		});
 	});
-
 
 });
 
@@ -441,7 +440,7 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 				})
 			}
 			else {
-				res.status(400).json({ "code": "-1" });
+				res.status(200).json({ "code": "-1" });
 			}
 		});
 	}
@@ -496,7 +495,7 @@ router.post('/like', urlencodedParser, async function (req, res, next) {
 				})
 			}
 			else {
-				res.status(400).json({ "code": "-1" });
+				res.status(200).json({ "code": "-1" });
 			}
 		});
 	}
