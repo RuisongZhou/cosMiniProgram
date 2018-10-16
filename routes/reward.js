@@ -594,7 +594,7 @@ router.get('/reward/pickOrNot', urlencodedParser, async function (req, res, next
         }
         else {
             res.status(200).json({
-                "status": -1
+                "status": 0
             });
         }
     });
