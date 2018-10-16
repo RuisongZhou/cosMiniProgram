@@ -133,15 +133,19 @@ router.get('/replyblogs', urlencodedParser, async function (req, res, next) {
 	if (params.describe == 'getReplyBlogs') {
 		// let page = parseInt(params.page);
 
-		collection.find({themeId: params.themeId}).sort(['_id', -1]).toArray(function (err, replydata) {
-			postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
-				res.status(200).json({
-					"postBlogs": postdata[0],
-					"replyBlogs": replydata
+		if (!params.themeId) {
+			res.status(400).json({ "code": "-1" });
+		}
+		else {
+			collection.find({themeId: params.themeId}).sort(['_id', -1]).toArray(function (err, replydata) {
+				postCollection.find({_id: ObjectID(params.themeId)}).toArray(function (err, postdata) {
+					res.status(200).json({
+						"postBlogs": postdata[0],
+						"replyBlogs": replydata
+					});
 				});
-			});
-		});
-			
+			});	
+		}
 	}
 	else {
 		res.status(400).json({ "code": "-1" });
