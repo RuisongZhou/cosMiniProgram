@@ -161,6 +161,37 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
             res.status(200).json({ "code": "-1" ,"msg": "没有此悬赏"});
         }
         else {
+            rewardCollection.findOne({ _id: ObjectID(data.reward._id) }, function (err, rewardData) {
+                if (!rewardData) {
+                    res.status(200).json({ "code": "-1" ,"msg": "没有此悬赏"});
+                }
+                else {
+                    collection.find({"reward._id": ObjectID(rewardData._id)}).forEach(
+                        function(item){                
+                            // console.log(item)
+                            collection.update({_id: ObjectID(item._id)},{$set: {status: "-1"}});
+                        }
+                    )
+
+                    rewardCollection.save({
+                        _id: ObjectID(rewardData._id),
+                        poster: rewardData.poster,
+                        level: rewardData.level,
+                        theme: rewardData.theme,
+                        content: rewardData.content,
+                        price: rewardData.price,
+                        picture: rewardData.picture,
+                        ddl: rewardData.ddl,
+                        status: "1",
+                        completed: rewardData.completed,
+                        time: rewardData.time
+                    }, function () {
+                        res.status(200).json({ "code": "1"});
+                    })
+                }
+            })
+
+
             collection.save({
                 _id: ObjectID(data._id),
                 reward: data.reward,
@@ -193,28 +224,6 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                     })
                 })
                 
-                rewardCollection.findOne({ _id: ObjectID(data.reward._id) }, function (err, rewardData) {
-                    if (!rewardData) {
-                        res.status(200).json({ "code": "-1" ,"msg": "没有此悬赏"});
-                    }
-                    else {
-                        rewardCollection.save({
-                            _id: ObjectID(rewardData._id),
-                            poster: rewardData.poster,
-                            level: rewardData.level,
-                            theme: rewardData.theme,
-                            content: rewardData.content,
-                            price: rewardData.price,
-                            picture: rewardData.picture,
-                            ddl: rewardData.ddl,
-                            status: "1",
-                            completed: rewardData.completed,
-                            time: rewardData.time
-                        }, function () {
-                            res.status(200).json({ "code": "1"});
-                        })
-                    }
-                })
             })
         }
     })
@@ -495,12 +504,13 @@ router.get('/reward/getById', urlencodedParser, async function (req, res, next) 
 
 
 
-// 获取我的任务
-router.get('/reward/confirm', urlencodedParser, async function (req, res, next) {
+// 获取我的未审核任务
+router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
-	let collection = await informationDB.getCollection("REWARDCONFIRM");
-    collection.find({"picker.id": params.id}).sort(['_id', -1]).toArray(function (err, data) {
+    let collection = await informationDB.getCollection("REWARDCONFIRM");
+    var todoConfirm = [];
+    collection.find({"picker.id": params.id, status: "0"}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
             "reward": data
         });
