@@ -156,6 +156,7 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let rewardCollection = await informationDB.getCollection("REWARD");
     let accountCollection = await informationDB.getCollection("ACCOUNT");
+    let newsCollection = await informationDB.getCollection("NEWS");
 
     collection.findOne({ _id: ObjectID(rewardCheck.rewardConfirmId) }, function (err, data) {
         if (!data) {
@@ -187,46 +188,55 @@ router.post('/reward/check', urlencodedParser, async function (req, res, next) {
                         status: "1",
                         completed: rewardData.completed,
                         time: rewardData.time
+                    })
+
+                    //发布消息
+                    newsCollection.insertOne({
+                        toId: data.reward.poster.id,
+                        poster: data.picker,
+                        read: "0",
+                        option: "审核通过",
+                        content: "审核通过",
+                        time: getDate(),
+                        details: data
+                    })
+
+
+                    collection.save({
+                        _id: ObjectID(data._id),
+                        reward: data.reward,
+                        picker: data.picker,
+                        status: "1",
+                        completed: data.completed,
+                        describe: data.describe,
+                        time: data.time,
+                        comment: data.comment
                     }, function () {
-                        res.status(200).json({ "code": "1"});
+                        accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
+                            accountCollection.save({
+                                _id: ObjectID(userData._id),
+                                id: userData.id,
+                                nickName: userData.nickName,
+                                name: userData.name,
+                                gender: userData.gender,
+                                headimg: userData.headimg,
+                                tel: userData.tel,
+                                college: userData.college,
+                                access: userData.access,
+                                scores: userData.scores,
+                                lockedScores: userData.lockedScores,
+                                willGetScores: String(parseInt(userData.willGetScores) + parseInt(data.reward.price)),
+                                community: userData.community,
+                                birthday: userData.birthday,
+                                IDcard: userData.IDcard,
+                                address: userData.address,
+                                QQ: userData.QQ,
+                                describe: userData.describe
+                            })
+                        })
+                        
                     })
                 }
-            })
-
-
-            collection.save({
-                _id: ObjectID(data._id),
-                reward: data.reward,
-                picker: data.picker,
-                status: "1",
-                completed: data.completed,
-                describe: data.describe,
-                time: data.time,
-                comment: data.comment
-            }, function () {
-                accountCollection.findOne({ id: data.picker.id }, function (err, userData) {
-                    accountCollection.save({
-                        _id: ObjectID(userData._id),
-                        id: userData.id,
-                        nickName: userData.nickName,
-                        name: userData.name,
-                        gender: userData.gender,
-                        headimg: userData.headimg,
-                        tel: userData.tel,
-                        college: userData.college,
-                        access: userData.access,
-                        scores: userData.scores,
-                        lockedScores: userData.lockedScores,
-                        willGetScores: String(parseInt(userData.willGetScores) + parseInt(data.reward.price)),
-                        community: userData.community,
-                        birthday: userData.birthday,
-                        IDcard: userData.IDcard,
-                        address: userData.address,
-                        QQ: userData.QQ,
-                        describe: userData.describe
-                    })
-                })
-                
             })
         }
     })
