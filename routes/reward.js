@@ -531,7 +531,7 @@ router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res,
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     collection.find({"picker.id": params.id, status: "0"}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
-            "rewards": data
+            "rewardConfirms": data
         });
     });
 });
@@ -543,7 +543,7 @@ router.get('/reward/checkedConfirm', urlencodedParser, async function (req, res,
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     collection.find({"picker.id": params.id, status: "1"}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
-            "rewards": data
+            "rewardConfirms": data
         });
     });
 });
