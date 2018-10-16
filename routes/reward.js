@@ -511,13 +511,25 @@ router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res,
 	let params = req.query;
 	console.log(params);
     let collection = await informationDB.getCollection("REWARDCONFIRM");
-    var todoConfirm = [];
     collection.find({"picker.id": params.id, status: "0"}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
             "rewards": data
         });
     });
 });
+
+// 获取confirmId获取confirm信息
+router.get('/reward/confirm', urlencodedParser, async function (req, res, next) {
+	let params = req.query;
+	console.log(params);
+    let collection = await informationDB.getCollection("REWARDCONFIRM");
+    collection.find({_id: ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, data) {
+        res.status(200).json({
+            "reward": data[0]
+        });
+    });
+});
+
 
 
 // 根据任务id获取申请
