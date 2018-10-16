@@ -350,7 +350,6 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
 
     //开始初始化数据库
     console.log(UsearData)
-    let communityCollection = await informationDB.getCollection("COMMUNITY");
     let collection = await informationDB.getCollection("ADMINISTORATOR");
 
     if (UsearData.username == "adminroot") {
@@ -373,11 +372,7 @@ router.post('/register', urlencodedParser, async function (req, res, next) {
                 college: UsearData.college,  //新加，大学
                 IDcard: UsearData.IDcard,    //新加，身份证号
 			}, function () {
-                communityCollection.insertOne({
-                    communityName: UsearData.community
-                },function() {
-                    res.status(200).json({ "code": "200" });
-                })
+                res.status(200).json({ "code": "200" });
 			})
 		}
 		else {
@@ -396,6 +391,7 @@ router.post('/admin/register', urlencodedParser, async function (req, res, next)
     let username = req.body.username;
     let access = req.body.access;
 
+    let communityCollection = await informationDB.getCollection("COMMUNITY");
     let collection = await informationDB.getCollection("ADMINISTORATOR");
     collection.findOne({ username: username }, function (err, data) {
         if (!data) {
@@ -415,7 +411,11 @@ router.post('/admin/register', urlencodedParser, async function (req, res, next)
                 college: data.college,  //新加，大学
                 IDcard: data.IDcard,    //新加，身份证号
             },function () {
-                res.status(200).json({ "code": "1" })
+                communityCollection.insertOne({
+                    communityName: UsearData.community
+                },function() {
+                    res.status(200).json({ "code": "200" });
+                })
             });
         }
     });
