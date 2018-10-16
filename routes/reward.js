@@ -490,6 +490,8 @@ router.get('/reward', urlencodedParser, async function (req, res, next) {
     });
 });
 
+
+
 // 根据id获取悬赏
 router.get('/reward/getById', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
@@ -518,12 +520,12 @@ router.get('/reward/unCheckConfirm', urlencodedParser, async function (req, res,
 });
 
 
-// 根据任务id获取申请人
+// 根据任务id获取申请
 router.get('/reward/getConfirmById', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
 	let collection = await informationDB.getCollection("REWARDCONFIRM");
-    collection.find({"reward._id": params.id}).sort(['_id', -1]).toArray(function (err, data) {
+    collection.find({"reward._id": ObjectID(params.id)}).sort(['_id', -1]).toArray(function (err, data) {
         res.status(200).json({
             "rewardConfirm": data
         });
