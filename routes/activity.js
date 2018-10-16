@@ -180,7 +180,7 @@ router.get('/activity/list', urlencodedParser, async function (req, res, next) {
 	let params = req.query;
 	console.log(params);
     let collection = await informationDB.getCollection("ACTIVITY");
-    collection.find().sort(['_id', -1]).toArray(function (err, data) {
+    collection.find().sort(['ddl', -1]).toArray(function (err, data) {
         res.status(200).json({
             "activitys": data
         });
