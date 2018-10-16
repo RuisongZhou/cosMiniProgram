@@ -580,7 +580,7 @@ router.get('/reward/pickOrNot', urlencodedParser, async function (req, res, next
 	console.log(params);
     let collection = await informationDB.getCollection("REWARDCONFIRM");
     let accountCollection = await informationDB.getCollection("ACCOUNT");
-    collection.find({"reward._id": params.rewarId}).sort(['_id', -1]).toArray(function (err, data) {
+    collection.find({"reward._id": params.rewardId}).sort(['_id', -1]).toArray(function (err, data) {
         let status = 0;
         for (var i = 0; i< data.length; ++i) {
             if (data.picker.id == params.id) {
