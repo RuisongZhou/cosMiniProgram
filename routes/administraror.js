@@ -670,7 +670,7 @@ router.get('/model/confirmlistpage', urlencodedParser, async function (req, res,
     let page = parseInt(params.page) - 1;
     collection.find({status: "0"}).toArray(function (err, allData) {
         if (params.orderNumber == "") {
-            collection.find({status: "0"}).sort(['_id', 1]).skip(page*10).limit(10).toArray(function (err, data) {
+            collection.find({status: "0"}).sort(['_id', 1]).skip(page*20).limit(20).toArray(function (err, data) {
                 res.status(200).json({
                     "total": allData.length,
                     "models": data
